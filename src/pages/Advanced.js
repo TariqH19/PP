@@ -246,7 +246,6 @@ return (
   </div>
 );
 
-export default App;
 `;
 
 const checkoutHtmlCode = `<!DOCTYPE html>
