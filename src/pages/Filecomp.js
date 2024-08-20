@@ -24,7 +24,7 @@ function Filecomp() {
   const [file2Name, setFile2Name] = useState("");
   const [comparisonResult, setComparisonResult] = useState(null);
   const [filesIdentical, setFilesIdentical] = useState(null);
-  const [inputMode, setInputMode] = useState("file-file");
+  const [inputMode, setInputMode] = useState("existing-file");
   const [inputMethod, setInputMethod] = useState("paste"); // Default to paste text
   const [fileVersion, setFileVersion] = useState("sandbox"); // Default to sandbox version
 
