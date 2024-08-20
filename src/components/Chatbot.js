@@ -8,6 +8,7 @@ export const Chatbot = () => {
   });
   const [carts, setCarts] = useState([]);
   const [customs, setCustoms] = useState([]);
+  const [emails, setEmails] = useState([]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const chatHistoryRef = useRef(null);
@@ -20,12 +21,15 @@ export const Chatbot = () => {
     Promise.all([
       axios.get("https://fastlane-sand.vercel.app/api/carts"),
       axios.get("https://fastlane-sand.vercel.app/api/customs"),
+      axios.get("https://fastlane-sand.vercel.app/api/emails"),
     ])
-      .then(([cartResponse, customResponse]) => {
+      .then(([cartResponse, customResponse, emailResponse]) => {
         setCarts(cartResponse.data);
-        console.log(cartResponse.data);
+        // console.log(cartResponse.data);
         setCustoms(customResponse.data);
         // console.log(customResponse.data);
+        setEmails(emailResponse.data);
+        // console.log(emailResponse.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -63,6 +67,13 @@ export const Chatbot = () => {
     return `custom name: ${name}, custom notes: ${notes}`;
   });
 
+  const emailMessages = emails.map((email) => {
+    const merchant = email.merchant;
+    const engineer = email.engineer;
+
+    return `email merchant: ${merchant}, email engineer: ${engineer}`;
+  });
+
   const sendMessage = async () => {
     if (!inputText.trim()) return;
 
@@ -73,7 +84,7 @@ export const Chatbot = () => {
       messages: [
         {
           role: "system",
-          content: `Act as a helpful chatbot that creates email templates for engineers to send to merchants. These are the carts ${cartMessages} and custom integrations ${customMessages} available. You will receieve a problem and you will create a template email that the engineer can send the merchant with the relevant information. Only help users with information relevant to cart and custom integrations. Common issues are that the account is not fully subscribed this is the onboarding link that they need to go to click login on the bottom of the page. If the prompt says the account isn't subscribed this is the onboarding link https://www.paypal.com/unifiedonboarding/entry?&products=ppcp. Format responses if they are emails.`,
+          content: `Act as a helpful chatbot that creates email templates for engineers to send to merchants. These are the carts ${cartMessages} and custom integrations ${customMessages} available. These are sample emails that you can use for creating email templates ${emailMessages}. You will receieve a problem and you will create a template email that the engineer can send the merchant with the relevant information. Only help users with information relevant to cart and custom integrations. Common issues are that the account is not fully subscribed this is the onboarding link that they need to go to click login on the bottom of the page. If the prompt says the account isn't subscribed this is the onboarding link https://www.paypal.com/unifiedonboarding/entry?&products=ppcp. Format responses if they are emails.`,
         },
         ...chatHistory,
         { role: "user", content: inputText },
@@ -174,7 +185,7 @@ export const Chatbot = () => {
           className={`p-2 rounded-lg ${
             !inputText.trim() || loading
               ? "bg-gray-400 cursor-not-allowed"
-              : "bg-regal-pink hover:bg-regal-pink dark:bg-regal-blue text-white"
+              : "bg-black text-white"
           }`}
           aria-label={loading ? "Sending..." : "Send message"}>
           {loading ? "Sending..." : "Send"}
