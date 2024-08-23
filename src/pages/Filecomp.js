@@ -12,10 +12,12 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  TextField,
 } from "@mui/material";
 import FileInput from "../components/Fileinput";
 import ComparisonResult from "../components/ComparisonResult";
 import * as Diff from "diff";
+import axios from "axios";
 
 function Filecomp() {
   const [file1Content, setFile1Content] = useState("");
@@ -25,6 +27,8 @@ function Filecomp() {
   const [comparisonResult, setComparisonResult] = useState(null);
   const [filesIdentical, setFilesIdentical] = useState(null);
   const [inputMode, setInputMode] = useState("existing-file");
+  const [url, setUrl] = useState("");
+  const [fileContent, setFileContent] = useState("");
   const [inputMethod, setInputMethod] = useState("paste"); // Default to paste text
   const [fileVersion, setFileVersion] = useState("sandbox"); // Default to sandbox version
 
@@ -40,6 +44,24 @@ function Filecomp() {
       fileVersion === "sandbox" ? sandboxFileContent : liveFileContent
     );
   }, [fileVersion]);
+
+  const handleUrlChange = (e) => {
+    setUrl(e.target.value);
+  };
+
+  const fetchUrlContent = async () => {
+    try {
+      const response = await axios.get(
+        `${url}/.well-known/apple-developer-merchantid-domain-association`
+      );
+      console.log("Fetched content from URL:", response.data);
+      setTextOrFileContent(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch content from URL:", error);
+      return null;
+    }
+  };
 
   const handleTabChange = (event, newValue) => {
     setInputMode(newValue);
@@ -177,6 +199,7 @@ function Filecomp() {
                       label="Input Method">
                       <MenuItem value="paste">Paste Text</MenuItem>
                       <MenuItem value="upload">Upload File</MenuItem>
+                      <MenuItem value="url">Fetch from URL</MenuItem>
                     </Select>
                   </FormControl>
                   <Box mt={2}>
@@ -186,7 +209,7 @@ function Filecomp() {
                         label="Paste Text to Compare"
                         isTextInput={true}
                       />
-                    ) : (
+                    ) : inputMethod === "upload" ? (
                       <FileInput
                         setContent={setTextOrFileContent}
                         label="Upload File to Compare"
@@ -194,6 +217,22 @@ function Filecomp() {
                         setFileName={setFile2Name}
                         fileName={file2Name}
                       />
+                    ) : (
+                      <Box>
+                        <TextField
+                          fullWidth
+                          label="Enter URL"
+                          value={url}
+                          onChange={handleUrlChange}
+                        />
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={fetchUrlContent}
+                          sx={{ mt: 2 }}>
+                          Fetch
+                        </Button>
+                      </Box>
                     )}
                   </Box>
                 </Grid>
