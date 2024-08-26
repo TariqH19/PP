@@ -28,7 +28,7 @@ function Filecomp() {
   const [filesIdentical, setFilesIdentical] = useState(null);
   const [inputMode, setInputMode] = useState("existing-file");
   const [url, setUrl] = useState("");
-  const [fileContent, setFileContent] = useState("");
+  // const [fileContent, setFileContent] = useState("");
   const [inputMethod, setInputMethod] = useState("paste"); // Default to paste text
   const [fileVersion, setFileVersion] = useState("sandbox"); // Default to sandbox version
 
@@ -62,6 +62,23 @@ function Filecomp() {
       return null;
     }
   };
+
+  // const fetchUrlContent = async () => {
+  //   const fullURL = `${url}/.well-known/apple-developer-merchantid-domain-association`; // Replace with your actual URL
+
+  //   try {
+  //     const response = await axios.get(
+  //       `http://localhost:3333/fetch-url-content`,
+  //       {
+  //         params: { url: fullURL },
+  //       }
+  //     );
+  //     console.log("Fetched content from server:", response.data);
+  //     setTextOrFileContent(response.data);
+  //   } catch (error) {
+  //     console.error("Failed to fetch content from server:", error);
+  //   }
+  // };
 
   const handleTabChange = (event, newValue) => {
     setInputMode(newValue);
@@ -247,6 +264,17 @@ function Filecomp() {
               disabled={!textOrFileContent}>
               Compare
             </Button>
+            <Typography variant="h4" mt={2}>
+              When fetching from URL it will fail please add this chrome
+              extension to allow CORS.{" "}
+              <a
+                style={{ color: "blue" }}
+                target="_blank"
+                href="https://chromewebstore.google.com/detail/allow-cors-access-control/lhobafahddgcelffkeicbaginigeejlf?hl=en"
+                rel="noreferrer">
+                CORS extension
+              </a>
+            </Typography>
           </Box>
         </Paper>
         {filesIdentical !== null && (
