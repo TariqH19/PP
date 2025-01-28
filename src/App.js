@@ -30,6 +30,7 @@ const App = () => {
         <Route path="/applepayphp" element={<ApplePayPHP />} />
         <Route path="/authcap" element={<AuthCap />} />
         <Route path="/donate" element={<Donate />} />
+        {/* <Route path="/applepay" element={<Applepay />} /> */}
         <Route path="/file-compare" element={<Filecomp />} />
         <Route path="/subs" element={<Subs />} />
       </Routes>
