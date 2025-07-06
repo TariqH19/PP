@@ -14,6 +14,7 @@ import GooglepayPHP from "./pages/GooglepayPHP";
 import Applepay from "./pages/ApplePay";
 import AuthCap from "./pages/AuthCap";
 import Subs from "./pages/Subs";
+import Emails from "./pages/Email";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
       {/* <Nav /> */}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/emails" element={<Emails />} />
         <Route path="/advanced" element={<Advanced />} />
         <Route path="/standard" element={<Standard />} />
         <Route path="/googlepay" element={<Googlepay />} />
