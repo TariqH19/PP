@@ -119,15 +119,12 @@ const ApplePayButton = () => {
       session.onpaymentauthorized = async (event) => {
         try {
           // Create order on the server
-          const orderResponse = await fetch(
-            "https://advanced-integration.vercel.app//applepay/api/orders",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
+          const orderResponse = await fetch("/applepay/api/orders", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
 
           if (!orderResponse.ok) {
             throw new Error("Failed to create order");
@@ -144,12 +141,9 @@ const ApplePayButton = () => {
           });
 
           // Capture order on the server
-          await fetch(
-            `https://advanced-integration.vercel.app//applepay/api/orders/${id}/capture`,
-            {
-              method: "POST",
-            }
-          );
+          await fetch(`/applepay/api/orders/${id}/capture`, {
+            method: "POST",
+          });
 
           session.completePayment(ApplePaySession.STATUS_SUCCESS);
         } catch (err) {
@@ -217,25 +211,22 @@ const ApplePay = () => {
 
   async function createOrder() {
     try {
-      const response = await fetch(
-        "https://advanced-integration.vercel.app//api/orders",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          // use the "body" param to optionally pass additional order information
-          // like product ids and quantities
-          body: JSON.stringify({
-            cart: [
-              {
-                sku: "1blwyeo8",
-                quantity: 2,
-              },
-            ],
-          }),
-        }
-      );
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        // use the "body" param to optionally pass additional order information
+        // like product ids and quantities
+        body: JSON.stringify({
+          cart: [
+            {
+              sku: "1blwyeo8",
+              quantity: 2,
+            },
+          ],
+        }),
+      });
 
       const orderData = await response.json();
 
@@ -257,15 +248,12 @@ const ApplePay = () => {
 
   async function onApprove(data, actions) {
     try {
-      const response = await fetch(
-        `https://advanced-integration.vercel.app//api/orders/${data.orderID}/capture`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`/api/orders/${data.orderID}/capture`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       const orderData = await response.json();
       // Three cases to handle:
