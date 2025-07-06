@@ -15,10 +15,18 @@ import {
 } from "lucide-react";
 
 const IntegrationEmailPlatform = () => {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    // Check localStorage on initial load
+    const saved = localStorage.getItem("darkMode");
+    return saved ? JSON.parse(saved) : false;
+  });
   const [selectedTemplate, setSelectedTemplate] = useState("initial");
   const [customLinks, setCustomLinks] = useState([]);
-  const [customTemplates, setCustomTemplates] = useState([]);
+  const [customTemplates, setCustomTemplates] = useState(() => {
+    // Load custom templates from localStorage on initial load
+    const saved = localStorage.getItem("customTemplates");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [templateName, setTemplateName] = useState("");
   const [copiedMessage, setCopiedMessage] = useState("");
@@ -181,7 +189,14 @@ Integration Team`,
 
   useEffect(() => {
     document.body.className = darkMode ? "dark" : "";
+    // Save dark mode preference to localStorage
+    localStorage.setItem("darkMode", JSON.stringify(darkMode));
   }, [darkMode]);
+
+  useEffect(() => {
+    // Save custom templates to localStorage whenever they change
+    localStorage.setItem("customTemplates", JSON.stringify(customTemplates));
+  }, [customTemplates]);
 
   return (
     <div
