@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 
 import Home from "./pages/Home";
-// import Nav from "./components/Nav";
+import Coffee from "./pages/Coffee";
 import Filecomp from "./pages/Filecomp";
 import Emails from "./pages/Email";
 
@@ -12,7 +12,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/emails" element={<Emails />} />
-        {/* <Route path="/applepay" element={<Applepay />} /> */}
+        <Route path="/coffee" element={<Coffee />} />
         <Route path="/file-compare" element={<Filecomp />} />
       </Routes>
     </>
