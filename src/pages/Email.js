@@ -593,6 +593,32 @@ const EmailMarkdownEditor = () => {
     setTimeout(() => setFeedback({ type: "", message: "" }), 3000);
   };
 
+  async function copyToClipboardFallback(text) {
+    try {
+      // Modern API, only works on HTTPS or localhost
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (err) {
+      // Fallback for http: or unsupported context
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      // Move it off-screen
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        return true;
+      } catch (err2) {
+        return false;
+      } finally {
+        document.body.removeChild(textarea);
+      }
+    }
+  }
+
   const copyToClipboard = async () => {
     const content = `Subject: ${replaceVariables(
       subject
@@ -601,17 +627,9 @@ const EmailMarkdownEditor = () => {
       showTempFeedback("error", "Nothing to copy");
       return;
     }
-    if (!navigator.clipboard) {
-      showTempFeedback("error", "Clipboard not supported.");
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(content);
-      showTempFeedback("success", "Copied to clipboard!");
-    } catch (e) {
-      console.error(e);
-      showTempFeedback("error", "Failed to copy.");
-    }
+    const ok = await copyToClipboardFallback(content);
+    if (ok) showTempFeedback("success", "Copied to clipboard!");
+    else showTempFeedback("error", "Failed to copy.");
   };
 
   const saveEmail = () => {
