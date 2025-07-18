@@ -601,10 +601,15 @@ const EmailMarkdownEditor = () => {
       showTempFeedback("error", "Nothing to copy");
       return;
     }
+    if (!navigator.clipboard) {
+      showTempFeedback("error", "Clipboard not supported.");
+      return;
+    }
     try {
       await navigator.clipboard.writeText(content);
       showTempFeedback("success", "Copied to clipboard!");
-    } catch {
+    } catch (e) {
+      console.error(e);
       showTempFeedback("error", "Failed to copy.");
     }
   };
