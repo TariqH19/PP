@@ -5,6 +5,7 @@ import Coffee from "./pages/Coffee";
 import Filecomp from "./pages/Filecomp";
 import Emails from "./pages/Email";
 import Finance from "./pages/Finance";
+import Prompts from "./pages/Prompts";
 
 const App = () => {
   return (
@@ -12,6 +13,7 @@ const App = () => {
       {/* <Nav /> */}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/prompts" element={<Prompts />} />
         <Route path="/emails" element={<Emails />} />
         <Route path="/finance" element={<Finance />} />
         <Route path="/coffee" element={<Coffee />} />
