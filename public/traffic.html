@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Flow Simulation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .simulation-area {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .canvas-container {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #trafficCanvas {
+            border: 3px solid #34495e;
+            border-radius: 10px;
+            background: #2c3e50;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .controls {
+            width: 300px;
+            background: #ecf0f1;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-group h3 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 10px;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #3498db;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .value-display {
+            font-size: 0.9em;
+            color: #666;
+            text-align: right;
+            margin-top: -5px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .primary-btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .secondary-btn {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .secondary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
+        }
+
+        .stats {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .stats h3 {
+            margin: 0 0 15px 0;
+            color: #ecf0f1;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        .light-status {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid #333;
+            vertical-align: middle;
+        }
+
+        .preset-scenarios {
+            background: #e8f5e8;
+            border: 2px solid #27ae60;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .preset-scenarios h4 {
+            color: #27ae60;
+            margin: 0 0 10px 0;
+        }
+
+        .scenario-btn {
+            background: #27ae60;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 0.9em;
+        }
+
+        .scenario-btn:hover {
+            background: #219a52;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🚦 Traffic Flow Simulation</h1>
+
+        <div class="simulation-area">
+            <div class="canvas-container">
+                <canvas id="trafficCanvas" width="800" height="600"></canvas>
+            </div>
+
+            <div class="controls">
+                <div class="preset-scenarios">
+                    <h4>Quick Scenarios</h4>
+                    <button class="scenario-btn" onclick="loadScenario('rush')">Rush Hour</button>
+                    <button class="scenario-btn" onclick="loadScenario('light')">Light Traffic</button>
+                    <button class="scenario-btn" onclick="loadScenario('congested')">Congested</button>
+                </div>
+
+                <div class="control-group">
+                    <h3>🚗 Traffic Generation</h3>
+                    <label>Car Spawn Rate:</label>
+                    <input type="range" id="spawnRate" min="0.5" max="5" value="2" step="0.1">
+                    <div class="value-display" id="spawnRateValue">2.0 cars/sec</div>
+
+                    <label>Car Speed:</label>
+                    <input type="range" id="carSpeed" min="0.5" max="3" value="1.5" step="0.1">
+                    <div class="value-display" id="carSpeedValue">1.5x</div>
+                </div>
+
+                <div class="control-group">
+                    <h3>🚦 Traffic Light Control</h3>
+                    <label>Green Light Duration:</label>
+                    <input type="range" id="greenDuration" min="2" max="15" value="8" step="1">
+                    <div class="value-display" id="greenDurationValue">8 seconds</div>
+
+                    <label>Red Light Duration:</label>
+                    <input type="range" id="redDuration" min="2" max="15" value="6" step="1">
+                    <div class="value-display" id="redDurationValue">6 seconds</div>
+
+                    <label>Yellow Light Duration:</label>
+                    <input type="range" id="yellowDuration" min="1" max="5" value="2" step="1">
+                    <div class="value-display" id="yellowDurationValue">2 seconds</div>
+                </div>
+
+                <div class="control-group">
+                    <h3>🎛️ Simulation Control</h3>
+                    <button class="primary-btn" onclick="toggleSimulation()">Start Simulation</button>
+                    <button class="secondary-btn" onclick="resetSimulation()">Reset</button>
+                    <button class="secondary-btn" onclick="clearAllCars()">Clear Cars</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <h3>📊 Traffic Statistics</h3>
+            <div class="stat-item">
+                <span>Cars on Road:</span>
+                <span class="stat-value" id="carCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span>Average Speed:</span>
+                <span class="stat-value" id="avgSpeed">0.0 mph</span>
+            </div>
+            <div class="stat-item">
+                <span>Traffic Flow Rate:</span>
+                <span class="stat-value" id="flowRate">0.0 cars/min</span>
+            </div>
+            <div class="stat-item">
+                <span>Congestion Level:</span>
+                <span class="stat-value" id="congestionLevel">Low</span>
+            </div>
+            <div class="stat-item">
+                <span>Light Status:</span>
+                <span class="stat-value">
+                    <span class="light-status" id="lightIndicator"></span>
+                    <span id="lightStatus">Red</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('trafficCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Simulation state
+        let isRunning = false;
+        let cars = [];
+        let lastSpawnTime = 0;
+        let trafficLight = { state: 'red', timer: 0 };
+        let frameCount = 0;
+        let carsPassed = 0;
+        let totalSpeed = 0;
+        let speedSamples = 0;
+
+        // Parameters
+        let params = {
+            spawnRate: 2.0,
+            carSpeed: 1.5,
+            greenDuration: 8,
+            redDuration: 6,
+            yellowDuration: 2
+        };
+
+        // Car class
+        class Car {
+            constructor(x, y, lane) {
+                this.x = x;
+                this.y = y;
+                this.lane = lane;
+                this.speed = params.carSpeed * (0.8 + Math.random() * 0.4);
+                this.maxSpeed = this.speed;
+                this.length = 30;
+                this.width = 18;
+                this.color = this.getRandomColor();
+                this.hasPassedLight = false;
+            }
+
+            getRandomColor() {
+                const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                // Check for car ahead
+                const carAhead = this.getCarAhead();
+                const distanceToLight = 400 - this.x;
+
+                if (carAhead) {
+                    const distance = carAhead.x - this.x - this.length;
+                    if (distance < 50) {
+                        this.speed = Math.max(0, carAhead.speed - 0.1);
+                    } else {
+                        this.speed = Math.min(this.maxSpeed, this.speed + 0.05);
+                    }
+                } else if (distanceToLight > 0 && distanceToLight < 100 && trafficLight.state === 'red') {
+                    // Stop for red light
+                    this.speed = Math.max(0, this.speed - 0.1);
+                } else if (distanceToLight > 0 && distanceToLight < 50 && trafficLight.state === 'yellow') {
+                    // Decide whether to stop or go for yellow
+                    if (this.speed < 0.5) {
+                        this.speed = Math.max(0, this.speed - 0.1);
+                    } else {
+                        this.speed = Math.min(this.maxSpeed, this.speed + 0.02);
+                    }
+                } else {
+                    // Normal driving
+                    this.speed = Math.min(this.maxSpeed, this.speed + 0.02);
+                }
+
+                this.x += this.speed;
+
+                // Track cars passing the light
+                if (this.x > 400 && !this.hasPassedLight) {
+                    this.hasPassedLight = true;
+                    carsPassed++;
+                }
+
+                // Update speed statistics
+                totalSpeed += this.speed;
+                speedSamples++;
+            }
+
+            getCarAhead() {
+                let closest = null;
+                let minDistance = Infinity;
+
+                for (let car of cars) {
+                    if (car !== this && car.lane === this.lane && car.x > this.x) {
+                        const distance = car.x - this.x;
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            closest = car;
+                        }
+                    }
+                }
+
+                return closest;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.length, this.width);
+
+                // Car details
+                ctx.fillStyle = '#2c3e50';
+                ctx.fillRect(this.x + 5, this.y + 2, 6, 4);
+                ctx.fillRect(this.x + 5, this.y + 12, 6, 4);
+                ctx.fillRect(this.x + 19, this.y + 2, 6, 4);
+                ctx.fillRect(this.x + 19, this.y + 12, 6, 4);
+
+                // Headlights
+                ctx.fillStyle = '#f1c40f';
+                ctx.fillRect(this.x + 28, this.y + 3, 2, 3);
+                ctx.fillRect(this.x + 28, this.y + 12, 2, 3);
+            }
+        }
+
+        function initializeSimulation() {
+            // Draw road
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Road surface
+            ctx.fillStyle = '#34495e';
+            ctx.fillRect(0, 250, canvas.width, 100);
+
+            // Lane markings
+            ctx.strokeStyle = '#f1c40f';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([20, 15]);
+            ctx.beginPath();
+            ctx.moveTo(0, 300);
+            ctx.lineTo(canvas.width, 300);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Road edges
+            ctx.strokeStyle = '#ecf0f1';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, 250);
+            ctx.lineTo(canvas.width, 250);
+            ctx.moveTo(0, 350);
+            ctx.lineTo(canvas.width, 350);
+            ctx.stroke();
+
+            // Traffic light
+            drawTrafficLight();
+        }
+
+        function drawTrafficLight() {
+            // Traffic light pole
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(395, 180, 10, 70);
+
+            // Traffic light box
+            ctx.fillStyle = '#34495e';
+            ctx.fillRect(370, 160, 60, 90);
+
+            // Light circles
+            ctx.fillStyle = trafficLight.state === 'red' ? '#e74c3c' : '#7f8c8d';
+            ctx.beginPath();
+            ctx.arc(400, 180, 12, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = trafficLight.state === 'yellow' ? '#f39c12' : '#7f8c8d';
+            ctx.beginPath();
+            ctx.arc(400, 205, 12, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = trafficLight.state === 'green' ? '#27ae60' : '#7f8c8d';
+            ctx.beginPath();
+            ctx.arc(400, 230, 12, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function updateTrafficLight() {
+            trafficLight.timer += 1 / 60; // Assuming 60 FPS
+
+            switch (trafficLight.state) {
+                case 'red':
+                    if (trafficLight.timer >= params.redDuration) {
+                        trafficLight.state = 'green';
+                        trafficLight.timer = 0;
+                    }
+                    break;
+                case 'green':
+                    if (trafficLight.timer >= params.greenDuration) {
+                        trafficLight.state = 'yellow';
+                        trafficLight.timer = 0;
+                    }
+                    break;
+                case 'yellow':
+                    if (trafficLight.timer >= params.yellowDuration) {
+                        trafficLight.state = 'red';
+                        trafficLight.timer = 0;
+                    }
+                    break;
+            }
+        }
+
+        function spawnCar() {
+            const now = Date.now();
+            if (now - lastSpawnTime > 1000 / params.spawnRate) {
+                const lane = Math.random() < 0.5 ? 0 : 1;
+                const y = 260 + lane * 30;
+                cars.push(new Car(-40, y, lane));
+                lastSpawnTime = now;
+            }
+        }
+
+        function updateCars() {
+            for (let i = cars.length - 1; i >= 0; i--) {
+                cars[i].update();
+                if (cars[i].x > canvas.width + 50) {
+                    cars.splice(i, 1);
+                }
+            }
+        }
+
+        function updateStatistics() {
+            document.getElementById('carCount').textContent = cars.length;
+
+            const avgSpeed = speedSamples > 0 ? (totalSpeed / speedSamples) * 30 : 0;
+            document.getElementById('avgSpeed').textContent = avgSpeed.toFixed(1) + ' mph';
+
+            const flowRate = carsPassed * 60 / (frameCount / 60);
+            document.getElementById('flowRate').textContent = (isNaN(flowRate) ? 0 : flowRate).toFixed(1) + ' cars/min';
+
+            const congestion = cars.length > 20 ? 'High' : cars.length > 10 ? 'Medium' : 'Low';
+            document.getElementById('congestionLevel').textContent = congestion;
+
+            document.getElementById('lightStatus').textContent = trafficLight.state.charAt(0).toUpperCase() + trafficLight.state.slice(1);
+            const lightIndicator = document.getElementById('lightIndicator');
+            lightIndicator.style.backgroundColor = trafficLight.state === 'red' ? '#e74c3c' :
+                trafficLight.state === 'yellow' ? '#f39c12' : '#27ae60';
+
+            // Reset speed tracking
+            totalSpeed = 0;
+            speedSamples = 0;
+        }
+
+        function animate() {
+            if (!isRunning) return;
+
+            initializeSimulation();
+
+            updateTrafficLight();
+            spawnCar();
+            updateCars();
+
+            // Draw all cars
+            cars.forEach(car => car.draw());
+
+            frameCount++;
+            if (frameCount % 60 === 0) {
+                updateStatistics();
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function toggleSimulation() {
+            const button = document.querySelector('.primary-btn');
+            if (isRunning) {
+                isRunning = false;
+                button.textContent = 'Start Simulation';
+                button.style.background = 'linear-gradient(45deg, #3498db, #2980b9)';
+            } else {
+                isRunning = true;
+                button.textContent = 'Stop Simulation';
+                button.style.background = 'linear-gradient(45deg, #e74c3c, #c0392b)';
+                animate();
+            }
+        }
+
+        function resetSimulation() {
+            isRunning = false;
+            cars = [];
+            carsPassed = 0;
+            frameCount = 0;
+            trafficLight = { state: 'red', timer: 0 };
+            document.querySelector('.primary-btn').textContent = 'Start Simulation';
+            document.querySelector('.primary-btn').style.background = 'linear-gradient(45deg, #3498db, #2980b9)';
+            initializeSimulation();
+            updateStatistics();
+        }
+
+        function clearAllCars() {
+            cars = [];
+            carsPassed = 0;
+        }
+
+        function loadScenario(scenario) {
+            resetSimulation();
+
+            switch (scenario) {
+                case 'rush':
+                    params.spawnRate = 4.0;
+                    params.carSpeed = 1.0;
+                    params.greenDuration = 6;
+                    params.redDuration = 8;
+                    break;
+                case 'light':
+                    params.spawnRate = 1.0;
+                    params.carSpeed = 2.0;
+                    params.greenDuration = 12;
+                    params.redDuration = 4;
+                    break;
+                case 'congested':
+                    params.spawnRate = 5.0;
+                    params.carSpeed = 0.8;
+                    params.greenDuration = 4;
+                    params.redDuration = 10;
+                    break;
+            }
+
+            updateSliderValues();
+        }
+
+        function updateSliderValues() {
+            document.getElementById('spawnRate').value = params.spawnRate;
+            document.getElementById('carSpeed').value = params.carSpeed;
+            document.getElementById('greenDuration').value = params.greenDuration;
+            document.getElementById('redDuration').value = params.redDuration;
+            document.getElementById('yellowDuration').value = params.yellowDuration;
+
+            updateDisplayValues();
+        }
+
+        function updateDisplayValues() {
+            document.getElementById('spawnRateValue').textContent = params.spawnRate.toFixed(1) + ' cars/sec';
+            document.getElementById('carSpeedValue').textContent = params.carSpeed.toFixed(1) + 'x';
+            document.getElementById('greenDurationValue').textContent = params.greenDuration + ' seconds';
+            document.getElementById('redDurationValue').textContent = params.redDuration + ' seconds';
+            document.getElementById('yellowDurationValue').textContent = params.yellowDuration + ' seconds';
+        }
+
+        // Event listeners for sliders
+        document.getElementById('spawnRate').addEventListener('input', (e) => {
+            params.spawnRate = parseFloat(e.target.value);
+            updateDisplayValues();
+        });
+
+        document.getElementById('carSpeed').addEventListener('input', (e) => {
+            params.carSpeed = parseFloat(e.target.value);
+            updateDisplayValues();
+        });
+
+        document.getElementById('greenDuration').addEventListener('input', (e) => {
+            params.greenDuration = parseInt(e.target.value);
+            updateDisplayValues();
+        });
+
+        document.getElementById('redDuration').addEventListener('input', (e) => {
+            params.redDuration = parseInt(e.target.value);
+            updateDisplayValues();
+        });
+
+        document.getElementById('yellowDuration').addEventListener('input', (e) => {
+            params.yellowDuration = parseInt(e.target.value);
+            updateDisplayValues();
+        });
+
+        // Initialize
+        initializeSimulation();
+        updateDisplayValues();
+    </script>
+</body>
+
+</html>

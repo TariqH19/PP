@@ -1,11 +1,10 @@
 import { Route, Routes } from "react-router-dom";
 
 import Home from "./pages/Home";
-import Coffee from "./pages/Coffee";
 import Filecomp from "./pages/Filecomp";
 import Emails from "./pages/Email";
-import Finance from "./pages/Finance";
 import Prompts from "./pages/Prompts";
+import Data from "./pages/Data";
 
 const App = () => {
   return (
@@ -13,10 +12,9 @@ const App = () => {
       {/* <Nav /> */}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/data" element={<Data />} />
         <Route path="/prompts" element={<Prompts />} />
         <Route path="/emails" element={<Emails />} />
-        <Route path="/finance" element={<Finance />} />
-        <Route path="/coffee" element={<Coffee />} />
         <Route path="/file-compare" element={<Filecomp />} />
       </Routes>
     </>
