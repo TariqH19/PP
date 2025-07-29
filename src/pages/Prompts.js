@@ -13,6 +13,11 @@ import {
   Sun,
   Settings,
   User,
+  Download,
+  Upload,
+  Save,
+  Wrench,
+  FileText,
 } from "lucide-react";
 
 const PayPalPromptLibrary = () => {
@@ -22,6 +27,9 @@ const PayPalPromptLibrary = () => {
   const [copiedPrompt, setCopiedPrompt] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showCombinedBuilder, setShowCombinedBuilder] = useState(false);
+  const [showTemplateBuilder, setShowTemplateBuilder] = useState(false);
+  // Removed code preview functionality
 
   // Dynamic variables
   const [dynamicVars, setDynamicVars] = useState({
@@ -29,7 +37,230 @@ const PayPalPromptLibrary = () => {
     currency: "USD",
     clientId: "YOUR_CLIENT_ID",
     clientSecret: "YOUR_CLIENT_SECRET",
+    companyName: "Your Company",
+    productType: "Digital Product",
+    websiteUrl: "https://yourwebsite.com",
+    supportEmail: "support@yourcompany.com",
   });
+
+  // Advanced feature toggles
+  const [advancedFeatures, setAdvancedFeatures] = useState({
+    threeDSecure: false,
+    lineItems: false,
+    taxBreakdown: false,
+    shippingCalculation: false,
+    discountCodes: false,
+    recurringBilling: false,
+    webhookVerification: false,
+    fraudProtection: false,
+    multiCurrency: false,
+    guestCheckout: false,
+    savePaymentMethods: false,
+    addressValidation: false,
+  });
+
+  // Custom templates
+  const [customTemplates, setCustomTemplates] = useState([]);
+  const [newTemplate, setNewTemplate] = useState({
+    name: "",
+    description: "",
+    prompt: "",
+    category: "Custom",
+    platforms: ["Web"],
+  });
+
+  // Combined integration builder state
+  const [combinedIntegrations, setCombinedIntegrations] = useState({
+    paypalButton: false,
+    advancedCard: false,
+    applePay: false,
+    googlePay: false,
+  });
+
+  const generateCombinedPrompt = () => {
+    const selectedIntegrations = Object.keys(combinedIntegrations).filter(
+      (key) => combinedIntegrations[key]
+    );
+
+    if (selectedIntegrations.length === 0) {
+      return "Please select at least one payment method to generate a combined integration prompt.";
+    }
+
+    const integrationSections = {
+      paypalButton: `## PayPal Button Integration
+
+1. Initialize PayPal buttons with these specifications:
+   - Currency: {{CURRENCY}}
+   - Buyer Country: {{BUYER_COUNTRY}}
+   - Environment: sandbox (for testing)
+   - Client ID: {{CLIENT_ID}}
+   - Enable both PayPal and card payments
+
+2. Implement order creation with:
+   - Dynamic amount calculation
+   - Item details and description
+   - Proper error handling for {{BUYER_COUNTRY}} market
+   - Order validation
+   - Currency formatting for {{CURRENCY}}
+
+3. Handle payment approval with:
+   - Success callback implementation
+   - Transaction ID capture
+   - User confirmation display
+   - Redirect to success page
+   - {{BUYER_COUNTRY}}-specific compliance checks`,
+
+      advancedCard: `## Advanced Card Payment Integration
+
+1. Set up PayPal hosted fields for:
+   - Credit card number (with validation for {{BUYER_COUNTRY}})
+   - Expiration date
+   - CVV code
+   - Cardholder name
+   - Billing address collection ({{BUYER_COUNTRY}} format)
+   - Currency: {{CURRENCY}}
+
+2. Implement real-time validation:
+   - Card number format checking for {{BUYER_COUNTRY}} cards
+   - Expiration date validation
+   - CVV length verification
+   - Required field validation
+   - {{BUYER_COUNTRY}}-specific address format validation
+   - Visual feedback for errors
+
+3. Create secure payment processing:
+   - Token generation for card data
+   - 3D Secure authentication support ({{BUYER_COUNTRY}} requirements)
+   - Payment intent creation in {{CURRENCY}}
+   - Transaction confirmation`,
+
+      applePay: `## Apple Pay Integration
+
+1. Set up Apple Pay prerequisites:
+   - Apple Developer account configuration
+   - Merchant identifier setup for {{BUYER_COUNTRY}}
+   - Domain verification process
+   - Certificate generation and installation
+   - {{BUYER_COUNTRY}} merchant capabilities
+
+2. Implement Apple Pay button:
+   - Proper button styling and placement
+   - Device and browser capability detection
+   - Fallback for unsupported devices
+   - Dynamic payment amount display in {{CURRENCY}}
+   - {{BUYER_COUNTRY}}-specific button text
+
+3. Configure payment request:
+   - Merchant capabilities definition for {{BUYER_COUNTRY}}
+   - Supported networks (Visa, Mastercard, etc.)
+   - Country code: {{BUYER_COUNTRY}}
+   - Currency code: {{CURRENCY}}
+   - Required billing/shipping information ({{BUYER_COUNTRY}} format)
+
+4. Handle Apple Pay session:
+   - Payment sheet presentation
+   - User authentication flow
+   - Payment method selection
+   - Authorization event handling
+   - {{BUYER_COUNTRY}} tax calculations`,
+
+      googlePay: `## Google Pay Integration
+
+1. Configure Google Pay setup:
+   - Google Pay API initialization
+   - Merchant configuration for {{BUYER_COUNTRY}}
+   - Supported payment methods in {{BUYER_COUNTRY}}
+   - Environment setup (TEST/PRODUCTION)
+   - Currency: {{CURRENCY}}
+
+2. Implement payment button:
+   - Google Pay button rendering
+   - Availability checking for {{BUYER_COUNTRY}}
+   - User eligibility verification
+   - Dynamic button styling
+   - {{CURRENCY}} amount display
+
+3. Define payment data request:
+   - Transaction information structure
+   - Merchant details configuration
+   - Supported card networks for {{BUYER_COUNTRY}}
+   - Authentication requirements
+   - Country code: {{BUYER_COUNTRY}}
+   - Currency code: {{CURRENCY}}
+
+4. Handle payment flow:
+   - Payment sheet display
+   - User interaction management
+   - Payment method selection
+   - Authorization processing
+   - {{BUYER_COUNTRY}}-specific validation`,
+    };
+
+    const methodNames = {
+      paypalButton: "PayPal Button",
+      advancedCard: "Advanced Card Processing",
+      applePay: "Apple Pay",
+      googlePay: "Google Pay",
+    };
+
+    const basePrompt = `Create a comprehensive multi-payment method integration using PayPal with the following payment options:
+
+**Selected Payment Methods:** ${selectedIntegrations
+      .map((key) => methodNames[key])
+      .join(", ")}
+
+**Configuration:**
+- Client ID: {{CLIENT_ID}}
+- Client Secret: {{CLIENT_SECRET}}
+- Currency: {{CURRENCY}}
+- Target Market: {{BUYER_COUNTRY}}
+
+${selectedIntegrations.map((key) => integrationSections[key]).join("\n\n")}
+
+## Unified Implementation Requirements
+
+1. **Payment Method Detection and Fallbacks:**
+   - Implement automatic payment method availability detection for {{BUYER_COUNTRY}}
+   - Create intelligent fallback chain based on device capabilities
+   - Provide seamless user experience across all methods
+   - Handle currency conversion for {{CURRENCY}} when needed
+
+2. **Shared Authentication and Security:**
+   - Centralized OAuth token management using {{CLIENT_ID}}/{{CLIENT_SECRET}}
+   - Unified error handling across all payment methods
+   - Consistent security measures and fraud protection for {{BUYER_COUNTRY}}
+   - PCI compliance for card data handling
+
+3. **Order Management Integration:**
+   - Single order creation flow that works with all selected methods
+   - Unified webhook handling for payment confirmations
+   - Consistent transaction tracking and reporting in {{CURRENCY}}
+   - Shared customer notification system
+
+4. **User Interface Coordination:**
+   - Responsive design that accommodates all payment buttons
+   - Consistent styling and branding across methods
+   - Mobile-optimized experience for {{BUYER_COUNTRY}} users
+   - Accessibility compliance for all payment options
+
+5. **Testing and Validation:**
+   - Comprehensive test suite covering all payment methods
+   - {{BUYER_COUNTRY}}-specific test scenarios
+   - Cross-browser and cross-device testing
+   - Integration testing with PayPal sandbox environment
+
+6. **Localization and Compliance:**
+   - {{BUYER_COUNTRY}} regulatory compliance for all methods
+   - Proper {{CURRENCY}} formatting and display
+   - Local payment preferences and cultural considerations
+   - GDPR and data protection compliance where applicable
+
+Provide complete implementation with HTML structure, CSS styling, JavaScript logic, and server-side integration that seamlessly combines all selected payment methods into a single, cohesive checkout experience optimized for {{BUYER_COUNTRY}} market and {{CURRENCY}} transactions.
+
+Include detailed setup instructions, configuration examples, and troubleshooting guidance for each payment method while ensuring they work together harmoniously.`;
+
+    return basePrompt;
+  };
 
   const prompts = [
     {
@@ -645,11 +876,210 @@ Include marketplace platform code, seller onboarding flow, payment processing lo
   }, [searchTerm, selectedCategory, selectedPlatform]);
 
   const replaceVariables = (text) => {
-    return text
+    let processedText = text
       .replace(/\{\{BUYER_COUNTRY\}\}/g, dynamicVars.buyerCountry)
       .replace(/\{\{CURRENCY\}\}/g, dynamicVars.currency)
       .replace(/\{\{CLIENT_ID\}\}/g, dynamicVars.clientId)
-      .replace(/\{\{CLIENT_SECRET\}\}/g, dynamicVars.clientSecret);
+      .replace(/\{\{CLIENT_SECRET\}\}/g, dynamicVars.clientSecret)
+      .replace(/\{\{COMPANY_NAME\}\}/g, dynamicVars.companyName)
+      .replace(/\{\{PRODUCT_TYPE\}\}/g, dynamicVars.productType)
+      .replace(/\{\{WEBSITE_URL\}\}/g, dynamicVars.websiteUrl)
+      .replace(/\{\{SUPPORT_EMAIL\}\}/g, dynamicVars.supportEmail);
+
+    // Add advanced features section if any are enabled
+    const enabledFeatures = Object.keys(advancedFeatures).filter(
+      (key) => advancedFeatures[key]
+    );
+
+    if (enabledFeatures.length > 0) {
+      const featureDescriptions = {
+        threeDSecure: "3D Secure authentication for enhanced card security",
+        lineItems:
+          "Detailed line items with individual pricing and descriptions",
+        taxBreakdown:
+          "Comprehensive tax calculation and breakdown by jurisdiction",
+        shippingCalculation:
+          "Real-time shipping cost calculation and carrier integration",
+        discountCodes: "Promotional codes and discount management system",
+        recurringBilling: "Subscription and recurring payment processing",
+        webhookVerification:
+          "Secure webhook signature validation and processing",
+        fraudProtection: "Advanced fraud detection and risk assessment",
+        multiCurrency: "Multi-currency support with real-time conversion rates",
+        guestCheckout: "Guest checkout option without account registration",
+        savePaymentMethods: "Save and manage customer payment methods securely",
+        addressValidation: "Real-time address validation and standardization",
+      };
+
+      const advancedSection = `
+
+## Advanced Features Implementation
+
+The following advanced features have been selected for implementation:
+
+${enabledFeatures
+  .map(
+    (feature) =>
+      `- **${feature
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (str) => str.toUpperCase())}**: ${
+        featureDescriptions[feature]
+      }`
+  )
+  .join("\n")}
+
+### Implementation Requirements for Advanced Features:
+
+${
+  enabledFeatures.includes("threeDSecure")
+    ? `
+**3D Secure Integration:**
+- Implement SCA (Strong Customer Authentication) compliance for {{BUYER_COUNTRY}}
+- Add 3DS2 challenge flow handling
+- Configure liability shift parameters
+- Handle authentication exemptions
+`
+    : ""
+}
+
+${
+  enabledFeatures.includes("lineItems")
+    ? `
+**Line Items Management:**
+- Implement detailed cart item tracking
+- Add product SKU and category information
+- Include tax classification per item
+- Handle quantity and unit price calculations
+`
+    : ""
+}
+
+${
+  enabledFeatures.includes("taxBreakdown")
+    ? `
+**Tax Calculation System:**
+- Integrate with tax calculation services for {{BUYER_COUNTRY}}
+- Implement real-time tax rate lookup
+- Handle tax exemptions and special cases
+- Generate detailed tax breakdowns for receipts
+`
+    : ""
+}
+
+${
+  enabledFeatures.includes("shippingCalculation")
+    ? `
+**Shipping Integration:**
+- Connect with shipping carriers APIs
+- Implement real-time rate calculation
+- Add shipping method selection
+- Handle delivery date estimation
+`
+    : ""
+}
+
+${
+  enabledFeatures.includes("discountCodes")
+    ? `
+**Discount Management:**
+- Create promotional code validation system
+- Implement percentage and fixed amount discounts
+- Add usage limits and expiration handling
+- Track discount analytics and performance
+`
+    : ""
+}
+
+${
+  enabledFeatures.includes("recurringBilling")
+    ? `
+**Recurring Billing System:**
+- Set up subscription plan management
+- Implement billing cycle automation
+- Add proration and upgrade/downgrade logic
+- Handle failed payment retry mechanisms
+`
+    : ""
+}
+
+${
+  enabledFeatures.includes("webhookVerification")
+    ? `
+**Webhook Security:**
+- Implement webhook signature verification using {{CLIENT_SECRET}}
+- Add retry logic for failed webhook deliveries
+- Create webhook event logging and monitoring
+- Handle duplicate event prevention
+`
+    : ""
+}
+
+${
+  enabledFeatures.includes("fraudProtection")
+    ? `
+**Fraud Protection:**
+- Integrate with PayPal's fraud protection services
+- Implement risk scoring and thresholds
+- Add velocity checking and pattern analysis
+- Create manual review workflows for suspicious transactions
+`
+    : ""
+}
+
+${
+  enabledFeatures.includes("multiCurrency")
+    ? `
+**Multi-Currency Support:**
+- Implement currency conversion with live rates
+- Add currency-specific formatting for {{BUYER_COUNTRY}}
+- Handle currency-specific payment method restrictions
+- Create currency preference management
+`
+    : ""
+}
+
+${
+  enabledFeatures.includes("guestCheckout")
+    ? `
+**Guest Checkout Flow:**
+- Create streamlined checkout without registration
+- Implement optional account creation post-purchase
+- Add email verification for guest users
+- Handle guest order tracking and support
+`
+    : ""
+}
+
+${
+  enabledFeatures.includes("savePaymentMethods")
+    ? `
+**Payment Method Storage:**
+- Implement secure payment method tokenization
+- Add payment method management UI
+- Create default payment method selection
+- Handle payment method deletion and updates
+`
+    : ""
+}
+
+${
+  enabledFeatures.includes("addressValidation")
+    ? `
+**Address Validation:**
+- Integrate with address validation services
+- Implement real-time address suggestions
+- Add postal code and format validation for {{BUYER_COUNTRY}}
+- Handle international address formats
+`
+    : ""
+}
+
+Ensure all advanced features are implemented with proper error handling, logging, and compliance with {{BUYER_COUNTRY}} regulations.`;
+
+      processedText += advancedSection;
+    }
+
+    return processedText;
   };
 
   const copyToClipboard = async (text, promptId) => {
@@ -813,6 +1243,33 @@ Include marketplace platform code, seller onboarding flow, payment processing lo
                 </span>
               </div>
               <button
+                onClick={() => setShowCombinedBuilder(!showCombinedBuilder)}
+                className={`px-4 py-2 rounded-lg ${
+                  showCombinedBuilder
+                    ? darkMode
+                      ? "bg-blue-700 hover:bg-blue-600 text-blue-100"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                    : darkMode
+                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+                } transition-colors font-medium`}>
+                Combined Builder
+              </button>
+              <button
+                onClick={() => setShowTemplateBuilder(!showTemplateBuilder)}
+                className={`px-4 py-2 rounded-lg ${
+                  showTemplateBuilder
+                    ? darkMode
+                      ? "bg-purple-700 hover:bg-purple-600 text-purple-100"
+                      : "bg-purple-600 hover:bg-purple-700 text-white"
+                    : darkMode
+                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+                } transition-colors font-medium`}>
+                <FileText className="w-4 h-4 mr-2 inline" />
+                Templates
+              </button>
+              <button
                 onClick={() => setShowSettings(!showSettings)}
                 className={`p-2 rounded-lg ${
                   darkMode
@@ -847,87 +1304,640 @@ Include marketplace platform code, seller onboarding flow, payment processing lo
             <div className="flex items-center mb-4">
               <User className={`w-5 h-5 ${themeClasses.text} mr-2`} />
               <h3 className={`text-lg font-semibold ${themeClasses.text}`}>
-                Dynamic Variables Configuration
+                Configuration & Advanced Features
               </h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <label
-                  className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
-                  Buyer Country
-                </label>
-                <select
-                  value={dynamicVars.buyerCountry}
-                  onChange={(e) =>
-                    setDynamicVars({
-                      ...dynamicVars,
-                      buyerCountry: e.target.value,
-                    })
-                  }
-                  className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}>
-                  {countries.map((country) => (
-                    <option key={country} value={country}>
-                      {country}
-                    </option>
-                  ))}
-                </select>
+
+            {/* Dynamic Variables */}
+            <div className="mb-8">
+              <h4 className={`text-md font-medium ${themeClasses.text} mb-4`}>
+                Dynamic Variables
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
+                    Buyer Country
+                  </label>
+                  <select
+                    value={dynamicVars.buyerCountry}
+                    onChange={(e) =>
+                      setDynamicVars({
+                        ...dynamicVars,
+                        buyerCountry: e.target.value,
+                      })
+                    }
+                    className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}>
+                    {countries.map((country) => (
+                      <option key={country} value={country}>
+                        {country}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
+                    Currency
+                  </label>
+                  <select
+                    value={dynamicVars.currency}
+                    onChange={(e) =>
+                      setDynamicVars({
+                        ...dynamicVars,
+                        currency: e.target.value,
+                      })
+                    }
+                    className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}>
+                    {currencies.map((currency) => (
+                      <option key={currency} value={currency}>
+                        {currency}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
+                    Client ID
+                  </label>
+                  <input
+                    type="text"
+                    value={dynamicVars.clientId}
+                    onChange={(e) =>
+                      setDynamicVars({
+                        ...dynamicVars,
+                        clientId: e.target.value,
+                      })
+                    }
+                    className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                    placeholder="Your PayPal Client ID"
+                  />
+                </div>
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
+                    Client Secret
+                  </label>
+                  <input
+                    type="password"
+                    value={dynamicVars.clientSecret}
+                    onChange={(e) =>
+                      setDynamicVars({
+                        ...dynamicVars,
+                        clientSecret: e.target.value,
+                      })
+                    }
+                    className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                    placeholder="Your PayPal Client Secret"
+                  />
+                </div>
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
+                    Company Name
+                  </label>
+                  <input
+                    type="text"
+                    value={dynamicVars.companyName}
+                    onChange={(e) =>
+                      setDynamicVars({
+                        ...dynamicVars,
+                        companyName: e.target.value,
+                      })
+                    }
+                    className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                    placeholder="Your Company Name"
+                  />
+                </div>
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
+                    Product Type
+                  </label>
+                  <input
+                    type="text"
+                    value={dynamicVars.productType}
+                    onChange={(e) =>
+                      setDynamicVars({
+                        ...dynamicVars,
+                        productType: e.target.value,
+                      })
+                    }
+                    className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                    placeholder="e.g., Digital Product, Physical Goods"
+                  />
+                </div>
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
+                    Website URL
+                  </label>
+                  <input
+                    type="url"
+                    value={dynamicVars.websiteUrl}
+                    onChange={(e) =>
+                      setDynamicVars({
+                        ...dynamicVars,
+                        websiteUrl: e.target.value,
+                      })
+                    }
+                    className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                    placeholder="https://yourwebsite.com"
+                  />
+                </div>
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
+                    Support Email
+                  </label>
+                  <input
+                    type="email"
+                    value={dynamicVars.supportEmail}
+                    onChange={(e) =>
+                      setDynamicVars({
+                        ...dynamicVars,
+                        supportEmail: e.target.value,
+                      })
+                    }
+                    className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                    placeholder="support@yourcompany.com"
+                  />
+                </div>
               </div>
-              <div>
-                <label
-                  className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
-                  Currency
-                </label>
-                <select
-                  value={dynamicVars.currency}
-                  onChange={(e) =>
-                    setDynamicVars({ ...dynamicVars, currency: e.target.value })
-                  }
-                  className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}>
-                  {currencies.map((currency) => (
-                    <option key={currency} value={currency}>
-                      {currency}
-                    </option>
-                  ))}
-                </select>
+            </div>
+
+            {/* Advanced Features */}
+            <div className="mb-6">
+              <div className="flex items-center mb-4">
+                <Wrench className={`w-5 h-5 ${themeClasses.text} mr-2`} />
+                <h4 className={`text-md font-medium ${themeClasses.text}`}>
+                  Advanced Features
+                </h4>
               </div>
-              <div>
+              <p className={`text-sm ${themeClasses.textSecondary} mb-4`}>
+                Select advanced features to include detailed implementation
+                guidance in your prompts.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {Object.keys(advancedFeatures).map((feature) => {
+                  const featureLabels = {
+                    threeDSecure: "3D Secure Authentication",
+                    lineItems: "Detailed Line Items",
+                    taxBreakdown: "Tax Breakdown",
+                    shippingCalculation: "Shipping Calculation",
+                    discountCodes: "Discount Codes",
+                    recurringBilling: "Recurring Billing",
+                    webhookVerification: "Webhook Verification",
+                    fraudProtection: "Fraud Protection",
+                    multiCurrency: "Multi-Currency",
+                    guestCheckout: "Guest Checkout",
+                    savePaymentMethods: "Save Payment Methods",
+                    addressValidation: "Address Validation",
+                  };
+
+                  return (
+                    <label
+                      key={feature}
+                      className={`flex items-center p-3 ${themeClasses.border} border rounded-lg cursor-pointer hover:border-blue-500 transition-colors`}>
+                      <input
+                        type="checkbox"
+                        checked={advancedFeatures[feature]}
+                        onChange={(e) =>
+                          setAdvancedFeatures({
+                            ...advancedFeatures,
+                            [feature]: e.target.checked,
+                          })
+                        }
+                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                      />
+                      <span
+                        className={`ml-3 text-sm font-medium ${themeClasses.text}`}>
+                        {featureLabels[feature]}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            <p className={`text-sm ${themeClasses.textMuted}`}>
+              These variables and features will be automatically integrated into
+              all copied prompts with detailed implementation guidance.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Template Builder Panel */}
+      {showTemplateBuilder && (
+        <div
+          className={`${themeClasses.cardBg} ${themeClasses.border} border-b transition-colors duration-200`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center">
+                <FileText className={`w-5 h-5 ${themeClasses.text} mr-2`} />
+                <h3 className={`text-lg font-semibold ${themeClasses.text}`}>
+                  Custom Template Builder
+                </h3>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => {
+                    const dataStr = JSON.stringify(customTemplates, null, 2);
+                    const dataBlob = new Blob([dataStr], {
+                      type: "application/json",
+                    });
+                    const url = URL.createObjectURL(dataBlob);
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.download = "paypal-prompt-templates.json";
+                    link.click();
+                  }}
+                  className={`px-3 py-2 rounded-lg ${
+                    darkMode
+                      ? "bg-green-700 hover:bg-green-600 text-green-100"
+                      : "bg-green-600 hover:bg-green-700 text-white"
+                  } transition-colors text-sm`}>
+                  <Download className="w-4 h-4 mr-1 inline" />
+                  Export
+                </button>
+                <label
+                  className={`px-3 py-2 rounded-lg ${
+                    darkMode
+                      ? "bg-blue-700 hover:bg-blue-600 text-blue-100"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  } transition-colors text-sm cursor-pointer`}>
+                  <Upload className="w-4 h-4 mr-1 inline" />
+                  Import
+                  <input
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          try {
+                            const imported = JSON.parse(event.target.result);
+                            setCustomTemplates([
+                              ...customTemplates,
+                              ...imported,
+                            ]);
+                          } catch (err) {
+                            alert("Invalid JSON file");
+                          }
+                        };
+                        reader.readAsText(file);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+
+            <p className={`text-sm ${themeClasses.textSecondary} mb-6`}>
+              Create custom prompt templates for your specific use cases.
+              Templates can include all dynamic variables and advanced features.
+            </p>
+
+            {/* New Template Form */}
+            <div
+              className={`${themeClasses.border} border rounded-lg p-6 mb-6`}>
+              <h4 className={`font-medium ${themeClasses.text} mb-4`}>
+                Create New Template
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
+                    Template Name
+                  </label>
+                  <input
+                    type="text"
+                    value={newTemplate.name}
+                    onChange={(e) =>
+                      setNewTemplate({ ...newTemplate, name: e.target.value })
+                    }
+                    className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
+                    placeholder="e.g., E-commerce Checkout"
+                  />
+                </div>
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
+                    Category
+                  </label>
+                  <select
+                    value={newTemplate.category}
+                    onChange={(e) =>
+                      setNewTemplate({
+                        ...newTemplate,
+                        category: e.target.value,
+                      })
+                    }
+                    className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}>
+                    <option value="Custom">Custom</option>
+                    <option value="E-commerce">E-commerce</option>
+                    <option value="Subscription">Subscription</option>
+                    <option value="Marketplace">Marketplace</option>
+                    <option value="Mobile">Mobile</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="mb-4">
                 <label
                   className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
-                  Client ID
+                  Description
                 </label>
                 <input
                   type="text"
-                  value={dynamicVars.clientId}
+                  value={newTemplate.description}
                   onChange={(e) =>
-                    setDynamicVars({ ...dynamicVars, clientId: e.target.value })
-                  }
-                  className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                  placeholder="Your PayPal Client ID"
-                />
-              </div>
-              <div>
-                <label
-                  className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
-                  Client Secret
-                </label>
-                <input
-                  type="password"
-                  value={dynamicVars.clientSecret}
-                  onChange={(e) =>
-                    setDynamicVars({
-                      ...dynamicVars,
-                      clientSecret: e.target.value,
+                    setNewTemplate({
+                      ...newTemplate,
+                      description: e.target.value,
                     })
                   }
                   className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                  placeholder="Your PayPal Client Secret"
+                  placeholder="Brief description of what this template does"
                 />
               </div>
+
+              <div className="mb-4">
+                <label
+                  className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
+                  Prompt Template
+                </label>
+                <textarea
+                  value={newTemplate.prompt}
+                  onChange={(e) =>
+                    setNewTemplate({ ...newTemplate, prompt: e.target.value })
+                  }
+                  className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-40`}
+                  placeholder="Enter your prompt template here. Use {{VARIABLE_NAME}} for dynamic replacements..."
+                />
+              </div>
+
+              <button
+                onClick={() => {
+                  if (newTemplate.name && newTemplate.prompt) {
+                    setCustomTemplates([
+                      ...customTemplates,
+                      { ...newTemplate, id: Date.now() },
+                    ]);
+                    setNewTemplate({
+                      name: "",
+                      description: "",
+                      prompt: "",
+                      category: "Custom",
+                      platforms: ["Web"],
+                    });
+                  }
+                }}
+                className={`px-4 py-2 rounded-lg ${
+                  newTemplate.name && newTemplate.prompt
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-gray-400 text-gray-600 cursor-not-allowed"
+                } transition-colors`}
+                disabled={!newTemplate.name || !newTemplate.prompt}>
+                <Save className="w-4 h-4 mr-2 inline" />
+                Save Template
+              </button>
             </div>
-            <p className={`text-sm ${themeClasses.textMuted} mt-3`}>
-              These variables will be automatically replaced in all copied
-              prompts with your configured values.
+
+            {/* Existing Templates */}
+            {customTemplates.length > 0 && (
+              <div>
+                <h4 className={`font-medium ${themeClasses.text} mb-4`}>
+                  Your Custom Templates
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {customTemplates.map((template) => (
+                    <div
+                      key={template.id}
+                      className={`${themeClasses.border} border rounded-lg p-4`}>
+                      <div className="flex items-start justify-between mb-2">
+                        <h5 className={`font-medium ${themeClasses.text}`}>
+                          {template.name}
+                        </h5>
+                        <button
+                          onClick={() =>
+                            setCustomTemplates(
+                              customTemplates.filter(
+                                (t) => t.id !== template.id
+                              )
+                            )
+                          }
+                          className={`text-red-500 hover:text-red-700 text-sm`}>
+                          Delete
+                        </button>
+                      </div>
+                      <p
+                        className={`text-sm ${themeClasses.textSecondary} mb-3`}>
+                        {template.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`text-xs px-2 py-1 rounded ${
+                            darkMode
+                              ? "bg-purple-900 text-purple-200"
+                              : "bg-purple-100 text-purple-800"
+                          }`}>
+                          {template.category}
+                        </span>
+                        <button
+                          onClick={() =>
+                            copyToClipboard(
+                              template.prompt,
+                              `template-${template.id}`
+                            )
+                          }
+                          className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors">
+                          {copiedPrompt === `template-${template.id}`
+                            ? "Copied!"
+                            : "Copy"}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Combined Integration Builder Panel */}
+      {showCombinedBuilder && (
+        <div
+          className={`${themeClasses.cardBg} ${themeClasses.border} border-b transition-colors duration-200`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="flex items-center mb-4">
+              <Code className={`w-5 h-5 ${themeClasses.text} mr-2`} />
+              <h3 className={`text-lg font-semibold ${themeClasses.text}`}>
+                Combined Integration Builder
+              </h3>
+            </div>
+            <p className={`text-sm ${themeClasses.textSecondary} mb-6`}>
+              Select multiple payment methods to generate a unified integration
+              prompt that combines all selected methods into one comprehensive
+              solution.
             </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <label
+                className={`flex items-center p-4 ${themeClasses.border} border rounded-lg cursor-pointer hover:${themeClasses.border} hover:border-blue-500 transition-colors`}>
+                <input
+                  type="checkbox"
+                  checked={combinedIntegrations.paypalButton}
+                  onChange={(e) =>
+                    setCombinedIntegrations({
+                      ...combinedIntegrations,
+                      paypalButton: e.target.checked,
+                    })
+                  }
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                />
+                <div className="ml-3">
+                  <div className={`font-medium ${themeClasses.text}`}>
+                    PayPal Button
+                  </div>
+                  <div className={`text-sm ${themeClasses.textSecondary}`}>
+                    Standard PayPal checkout buttons
+                  </div>
+                </div>
+              </label>
+
+              <label
+                className={`flex items-center p-4 ${themeClasses.border} border rounded-lg cursor-pointer hover:${themeClasses.border} hover:border-blue-500 transition-colors`}>
+                <input
+                  type="checkbox"
+                  checked={combinedIntegrations.advancedCard}
+                  onChange={(e) =>
+                    setCombinedIntegrations({
+                      ...combinedIntegrations,
+                      advancedCard: e.target.checked,
+                    })
+                  }
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                />
+                <div className="ml-3">
+                  <div className={`font-medium ${themeClasses.text}`}>
+                    Advanced Cards
+                  </div>
+                  <div className={`text-sm ${themeClasses.textSecondary}`}>
+                    Direct credit/debit card processing
+                  </div>
+                </div>
+              </label>
+
+              <label
+                className={`flex items-center p-4 ${themeClasses.border} border rounded-lg cursor-pointer hover:${themeClasses.border} hover:border-blue-500 transition-colors`}>
+                <input
+                  type="checkbox"
+                  checked={combinedIntegrations.applePay}
+                  onChange={(e) =>
+                    setCombinedIntegrations({
+                      ...combinedIntegrations,
+                      applePay: e.target.checked,
+                    })
+                  }
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                />
+                <div className="ml-3">
+                  <div className={`font-medium ${themeClasses.text}`}>
+                    Apple Pay
+                  </div>
+                  <div className={`text-sm ${themeClasses.textSecondary}`}>
+                    Native iOS/Safari payments
+                  </div>
+                </div>
+              </label>
+
+              <label
+                className={`flex items-center p-4 ${themeClasses.border} border rounded-lg cursor-pointer hover:${themeClasses.border} hover:border-blue-500 transition-colors`}>
+                <input
+                  type="checkbox"
+                  checked={combinedIntegrations.googlePay}
+                  onChange={(e) =>
+                    setCombinedIntegrations({
+                      ...combinedIntegrations,
+                      googlePay: e.target.checked,
+                    })
+                  }
+                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                />
+                <div className="ml-3">
+                  <div className={`font-medium ${themeClasses.text}`}>
+                    Google Pay
+                  </div>
+                  <div className={`text-sm ${themeClasses.textSecondary}`}>
+                    Google wallet integration
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            {/* Generated Combined Prompt */}
+            <div className={`${themeClasses.codeBg} rounded-lg p-4`}>
+              <div className="flex items-center justify-between mb-3">
+                <h4 className={`font-semibold ${themeClasses.text}`}>
+                  Combined Integration Prompt
+                </h4>
+                <button
+                  onClick={() =>
+                    copyToClipboard(generateCombinedPrompt(), "combined")
+                  }
+                  disabled={Object.values(combinedIntegrations).every(
+                    (v) => !v
+                  )}
+                  className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-md transition-colors ${
+                    Object.values(combinedIntegrations).every((v) => !v)
+                      ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                      : "bg-blue-600 text-white hover:bg-blue-700"
+                  }`}>
+                  {copiedPrompt === "combined" ? (
+                    <>
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                      Copied
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 mr-1" />
+                      Copy Combined Prompt
+                    </>
+                  )}
+                </button>
+              </div>
+              <div
+                className={`${themeClasses.codeInner} rounded p-3 max-h-80 overflow-y-auto`}>
+                <pre
+                  className={`text-sm ${themeClasses.text} whitespace-pre-wrap font-mono leading-relaxed`}>
+                  {replaceVariables(generateCombinedPrompt())}
+                </pre>
+              </div>
+            </div>
+
+            <div
+              className={`mt-4 p-3 ${
+                darkMode
+                  ? "bg-green-900 border-green-700"
+                  : "bg-green-50 border-green-200"
+              } border rounded`}>
+              <p
+                className={`text-sm ${
+                  darkMode ? "text-green-200" : "text-green-800"
+                }`}>
+                <strong>Pro Tip:</strong> Select multiple payment methods to
+                create a comprehensive checkout experience. The generated prompt
+                will include unified implementation guidelines, shared error
+                handling, and coordinated user interface elements for all
+                selected methods.
+              </p>
+            </div>
           </div>
         </div>
       )}
