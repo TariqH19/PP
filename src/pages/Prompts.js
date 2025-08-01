@@ -24,7 +24,10 @@ import CombinedIntegrationBuilder from "../components/CombinedIntegrationBuilder
 import { prompts } from "../data/prompts";
 import { currencies } from "../data/currencies";
 import { countries } from "../data/countries";
-import { scopeToIntegration } from "../data/scopeMapping";
+import {
+  scopeToIntegration,
+  getAvailablePromptsByScopes,
+} from "../data/scopeMapping";
 import { integrationSections, methodNames } from "../data/integrationTemplates";
 import {
   featureDescriptions,
@@ -242,7 +245,14 @@ Include detailed setup instructions, configuration examples, and troubleshooting
   ];
 
   const filteredPrompts = useMemo(() => {
-    return prompts.filter((prompt) => {
+    // First, filter by available scopes if access token exists
+    let availablePrompts = prompts;
+    if (accessToken && availableScopes.length > 0) {
+      availablePrompts = getAvailablePromptsByScopes(availableScopes, prompts);
+    }
+
+    // Then apply user filters
+    return availablePrompts.filter((prompt) => {
       const matchesSearch =
         prompt.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         prompt.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -255,7 +265,13 @@ Include detailed setup instructions, configuration examples, and troubleshooting
 
       return matchesSearch && matchesCategory && matchesPlatform;
     });
-  }, [searchTerm, selectedCategory, selectedPlatform]);
+  }, [
+    searchTerm,
+    selectedCategory,
+    selectedPlatform,
+    accessToken,
+    availableScopes,
+  ]);
 
   const replaceVariables = (text) => {
     let processedText = text
@@ -359,6 +375,14 @@ Ensure all advanced features are implemented with proper error handling, logging
                     darkMode ? "text-blue-200" : "text-blue-800"
                   } font-medium`}>
                   {filteredPrompts.length} prompts available
+                  {accessToken && availableScopes.length > 0 && (
+                    <span
+                      className={`text-xs block ${
+                        darkMode ? "text-blue-300" : "text-blue-600"
+                      }`}>
+                      (Filtered by access token scopes)
+                    </span>
+                  )}
                 </span>
               </div>
               <button
@@ -801,6 +825,37 @@ Ensure all advanced features are implemented with proper error handling, logging
               </select>
             </div>
           </div>
+
+          {/* Scope-based filtering info */}
+          {accessToken && availableScopes.length > 0 && (
+            <div
+              className={`mt-4 p-4 rounded-lg ${
+                darkMode
+                  ? "bg-green-900 border-green-700"
+                  : "bg-green-50 border-green-200"
+              } border`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className={`font-medium ${themeClasses.text} mb-1`}>
+                    🔐 Scope-Based Filtering Active
+                  </h4>
+                  <p className={`text-sm ${themeClasses.textSecondary}`}>
+                    Showing only prompts available with your current access
+                    token permissions ({availableScopes.length} scopes)
+                  </p>
+                </div>
+                <button
+                  onClick={generateAccessToken}
+                  className={`px-3 py-1 text-sm rounded ${
+                    darkMode
+                      ? "bg-green-700 hover:bg-green-600 text-green-100"
+                      : "bg-green-600 hover:bg-green-700 text-white"
+                  } transition-colors`}>
+                  Refresh Token
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Prompts Grid */}
@@ -925,8 +980,43 @@ Ensure all advanced features are implemented with proper error handling, logging
               No prompts found
             </h3>
             <p className={themeClasses.textSecondary}>
-              Try adjusting your search terms or filters
+              {accessToken && availableScopes.length > 0 ? (
+                <>
+                  Your access token scopes don't include permissions for
+                  available prompts.
+                  <br />
+                  Generate a new token with broader permissions or adjust your
+                  search filters.
+                </>
+              ) : (
+                "Try adjusting your search terms or filters"
+              )}
             </p>
+            {accessToken && availableScopes.length > 0 && (
+              <div
+                className={`mt-4 p-4 rounded-lg ${
+                  darkMode
+                    ? "bg-yellow-900 border-yellow-700"
+                    : "bg-yellow-50 border-yellow-200"
+                } border`}>
+                <h4 className={`font-medium ${themeClasses.text} mb-2`}>
+                  Available Scopes:
+                </h4>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {availableScopes.map((scope, index) => (
+                    <span
+                      key={index}
+                      className={`text-xs px-2 py-1 rounded ${
+                        darkMode
+                          ? "bg-gray-700 text-gray-300"
+                          : "bg-gray-100 text-gray-700"
+                      }`}>
+                      {scope}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
