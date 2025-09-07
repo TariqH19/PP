@@ -6,7 +6,9 @@ export const prompts = [
     description: "Simple one-click payment solution with customizable buttons",
     platforms: ["Web"],
     docLink: "https://developer.paypal.com/docs/checkout/standard/integrate/",
-    prompt: `Create a complete PayPal payment integration using the PayPal JavaScript SDK with the following requirements:
+    prompt: `**Documentation Reference:** Use this official PayPal documentation as a reference: https://developer.paypal.com/docs/checkout/standard/integrate/
+
+Create a complete PayPal payment integration using the PayPal JavaScript SDK with the following requirements, optimized for {{FRONTEND_TECH}} frontend and {{BACKEND_TECH}} backend:
 
 1. Initialize PayPal buttons with these specifications:
    - Currency: {{CURRENCY}}
@@ -14,6 +16,7 @@ export const prompts = [
    - Environment: sandbox (for testing)
    - Client ID: {{CLIENT_ID}}
    - Enable both PayPal and card payments
+   - Framework: {{FRONTEND_TECH}}
 
 2. Implement order creation with:
    - Dynamic amount calculation
@@ -21,6 +24,7 @@ export const prompts = [
    - Proper error handling for {{BUYER_COUNTRY}} market
    - Order validation
    - Currency formatting for {{CURRENCY}}
+   - {{FRONTEND_TECH}}-specific state management
 
 3. Handle payment approval with:
    - Success callback implementation
@@ -28,6 +32,7 @@ export const prompts = [
    - User confirmation display
    - Redirect to success page
    - {{BUYER_COUNTRY}}-specific compliance checks
+   - {{FRONTEND_TECH}} component lifecycle management
 
 4. Include proper error handling for:
    - Network failures
@@ -35,18 +40,25 @@ export const prompts = [
    - Cancelled transactions
    - Server-side validation
    - {{BUYER_COUNTRY}} regulatory requirements
+   - {{FRONTEND_TECH}} error boundaries and user feedback
 
-5. Add loading states and user feedback throughout the process
+5. Add loading states and user feedback throughout the process using {{FRONTEND_TECH}} best practices
 
-6. Configure server-side authentication:
+6. Configure server-side authentication with {{BACKEND_TECH}}:
    - Client ID: {{CLIENT_ID}}
    - Client Secret: {{CLIENT_SECRET}}
    - OAuth token management
    - Secure credential handling
+   - {{BACKEND_TECH}}-specific implementation patterns
 
-Please provide the complete HTML, CSS, and JavaScript code with inline comments explaining each step. Include both frontend integration and basic server-side order creation logic optimized for {{BUYER_COUNTRY}} market and {{CURRENCY}} transactions.`,
+Please provide the complete implementation code with:
+- {{FRONTEND_TECH}} components and logic
+- {{BACKEND_TECH}} server-side order creation API
+- Inline comments explaining each step
+- Best practices for {{FRONTEND_TECH}} and {{BACKEND_TECH}} integration
+- Optimization for {{BUYER_COUNTRY}} market and {{CURRENCY}} transactions`,
     instructions:
-      "Replace placeholder values with your actual PayPal credentials from the developer dashboard. Test in sandbox environment first.",
+      "Replace placeholder values with your actual PayPal credentials from the developer dashboard. Select your frontend and backend technologies in settings for framework-specific implementation guidance. Test in sandbox environment first.",
   },
   {
     id: 2,
@@ -55,7 +67,9 @@ Please provide the complete HTML, CSS, and JavaScript code with inline comments 
     description: "Direct credit/debit card processing with hosted fields",
     platforms: ["Web"],
     docLink: "https://developer.paypal.com/docs/checkout/advanced/integrate/",
-    prompt: `Build an advanced PayPal card payment system with hosted fields using the following specifications:
+    prompt: `**Documentation Reference:** Use this official PayPal documentation as a reference: https://developer.paypal.com/docs/checkout/advanced/integrate/
+
+Build an advanced PayPal card payment system with hosted fields using the following specifications:
 
 1. Set up PayPal hosted fields for:
    - Credit card number (with validation for {{BUYER_COUNTRY}})
@@ -116,7 +130,9 @@ Provide complete implementation with HTML structure, CSS styling, JavaScript log
     description: "Native Apple Pay experience for iOS Safari and apps",
     platforms: ["Web", "iOS"],
     docLink: "https://developer.paypal.com/docs/checkout/apm/apple-pay/",
-    prompt: `Create a comprehensive Apple Pay integration with PayPal backend processing:
+    prompt: `**Documentation Reference:** Use this official PayPal documentation as a reference: https://developer.paypal.com/docs/checkout/apm/apple-pay/
+
+Create a comprehensive Apple Pay integration with PayPal backend processing, optimized for {{FRONTEND_TECH}} frontend and {{BACKEND_TECH}} backend:
 
 1. Set up Apple Pay prerequisites:
    - Apple Developer account configuration
@@ -124,6 +140,7 @@ Provide complete implementation with HTML structure, CSS styling, JavaScript log
    - Domain verification process
    - Certificate generation and installation
    - {{BUYER_COUNTRY}} merchant capabilities
+   - {{FRONTEND_TECH}} framework integration
 
 2. Implement Apple Pay button:
    - Proper button styling and placement
@@ -131,6 +148,7 @@ Provide complete implementation with HTML structure, CSS styling, JavaScript log
    - Fallback for unsupported devices
    - Dynamic payment amount display in {{CURRENCY}}
    - {{BUYER_COUNTRY}}-specific button text
+   - {{FRONTEND_TECH}} component implementation
 
 3. Configure payment request:
    - Merchant capabilities definition for {{BUYER_COUNTRY}}
@@ -145,13 +163,15 @@ Provide complete implementation with HTML structure, CSS styling, JavaScript log
    - Payment method selection
    - Authorization event handling
    - {{BUYER_COUNTRY}} tax calculations
+   - {{FRONTEND_TECH}} state management
 
-5. Process payment with PayPal:
+5. Process payment with PayPal using {{BACKEND_TECH}}:
    - Token exchange implementation
    - Order creation via PayPal Orders API
    - Client credentials ({{CLIENT_ID}}/{{CLIENT_SECRET}})
    - Payment capture and confirmation in {{CURRENCY}}
    - Receipt generation
+   - {{BACKEND_TECH}} server integration
 
 6. Implement error scenarios:
    - Payment cancellation handling
@@ -159,12 +179,14 @@ Provide complete implementation with HTML structure, CSS styling, JavaScript log
    - Network connectivity issues
    - Invalid payment data
    - {{BUYER_COUNTRY}}-specific validation errors
+   - {{FRONTEND_TECH}} error boundaries
 
 7. Add testing capabilities:
    - Sandbox environment setup
    - Test card configuration for {{BUYER_COUNTRY}}
    - Debug logging implementation
    - Transaction verification
+   - {{BACKEND_TECH}} testing frameworks
 
 8. Compliance and localization:
    - {{BUYER_COUNTRY}} regulatory compliance
@@ -172,9 +194,9 @@ Provide complete implementation with HTML structure, CSS styling, JavaScript log
    - Currency formatting for {{CURRENCY}}
    - Language localization
 
-Include both web implementation (JavaScript) and iOS native code examples (Swift) with detailed setup instructions for {{BUYER_COUNTRY}} market.`,
+Include both {{FRONTEND_TECH}} implementation and {{BACKEND_TECH}} server-side code examples with detailed setup instructions for {{BUYER_COUNTRY}} market.`,
     instructions:
-      "Requires Apple Developer account and domain verification. Test thoroughly with sandbox environment before production deployment.",
+      "Requires Apple Developer account and domain verification. Select your frontend and backend technologies in settings for framework-specific implementation guidance. Test thoroughly with sandbox environment before production deployment.",
   },
   {
     id: 4,
@@ -183,7 +205,9 @@ Include both web implementation (JavaScript) and iOS native code examples (Swift
     description: "Seamless Google Pay checkout experience",
     platforms: ["Web", "Android"],
     docLink: "https://developer.paypal.com/docs/checkout/apm/google-pay/",
-    prompt: `Develop a complete Google Pay integration with PayPal processing:
+    prompt: `**Documentation Reference:** Use this official PayPal documentation as a reference: https://developer.paypal.com/docs/checkout/apm/google-pay/
+
+Develop a complete Google Pay integration with PayPal processing, optimized for {{FRONTEND_TECH}} frontend and {{BACKEND_TECH}} backend:
 
 1. Configure Google Pay setup:
    - Google Pay API initialization
@@ -191,6 +215,7 @@ Include both web implementation (JavaScript) and iOS native code examples (Swift
    - Supported payment methods in {{BUYER_COUNTRY}}
    - Environment setup (TEST/PRODUCTION)
    - Currency: {{CURRENCY}}
+   - {{FRONTEND_TECH}} framework integration
 
 2. Implement payment button:
    - Google Pay button rendering
@@ -198,6 +223,7 @@ Include both web implementation (JavaScript) and iOS native code examples (Swift
    - User eligibility verification
    - Dynamic button styling
    - {{CURRENCY}} amount display
+   - {{FRONTEND_TECH}} component setup
 
 3. Define payment data request:
    - Transaction information structure
@@ -213,13 +239,15 @@ Include both web implementation (JavaScript) and iOS native code examples (Swift
    - Payment method selection
    - Authorization processing
    - {{BUYER_COUNTRY}}-specific validation
+   - {{FRONTEND_TECH}} state management
 
-5. Process with PayPal backend:
+5. Process with PayPal backend using {{BACKEND_TECH}}:
    - Payment token extraction
    - PayPal Orders API integration
    - Client authentication ({{CLIENT_ID}}/{{CLIENT_SECRET}})
    - Payment capture implementation in {{CURRENCY}}
    - Transaction verification
+   - {{BACKEND_TECH}} server integration
 
 6. Implement comprehensive testing:
    - Test card setup for {{BUYER_COUNTRY}}
@@ -227,6 +255,7 @@ Include both web implementation (JavaScript) and iOS native code examples (Swift
    - Error simulation
    - Transaction logging
    - {{CURRENCY}} conversion testing
+   - {{BACKEND_TECH}} testing frameworks
 
 7. Add mobile-specific features:
    - Android app integration
@@ -248,9 +277,9 @@ Include both web implementation (JavaScript) and iOS native code examples (Swift
    - Regional compliance requirements
    - Language localization
 
-Provide complete code examples for both web integration (JavaScript) and Android native implementation (Java/Kotlin) optimized for {{BUYER_COUNTRY}} market.`,
+Provide complete code examples for both {{FRONTEND_TECH}} web integration and {{BACKEND_TECH}} server-side implementation optimized for {{BUYER_COUNTRY}} market.`,
     instructions:
-      "Register your app with Google Pay and configure merchant settings. Use test environment for development and testing.",
+      "Register your app with Google Pay and configure merchant settings. Select your frontend and backend technologies in settings for framework-specific implementation guidance. Use test environment for development and testing.",
   },
   {
     id: 5,
@@ -259,7 +288,9 @@ Provide complete code examples for both web integration (JavaScript) and Android
     description: "Server-side order management and processing",
     platforms: ["Web", "Android", "iOS"],
     docLink: "https://developer.paypal.com/docs/api/orders/v2/",
-    prompt: `Build a robust server-side PayPal Orders API integration:
+    prompt: `**Documentation Reference:** Use this official PayPal documentation as a reference: https://developer.paypal.com/docs/api/orders/v2/
+
+Build a robust server-side PayPal Orders API integration using {{BACKEND_TECH}}:
 
 1. Set up authentication:
    - OAuth 2.0 client credentials flow
@@ -268,6 +299,7 @@ Provide complete code examples for both web integration (JavaScript) and Android
    - Access token generation and caching
    - Token refresh mechanism
    - Error handling for authentication failures
+   - {{BACKEND_TECH}}-specific implementation patterns
 
 2. Implement order creation:
    - Order payload construction for {{BUYER_COUNTRY}}
@@ -275,6 +307,7 @@ Provide complete code examples for both web integration (JavaScript) and Android
    - Tax and shipping calculations ({{BUYER_COUNTRY}} rates)
    - Currency and locale handling ({{CURRENCY}}/{{BUYER_COUNTRY}})
    - Validation and error checking
+   - {{BACKEND_TECH}} data models and validation
 
 3. Create order management endpoints:
    - GET order details
@@ -338,7 +371,9 @@ Provide implementations in multiple languages: Node.js, Python, PHP, and Java wi
     description: "Automated recurring payment processing",
     platforms: ["Web", "Android", "iOS"],
     docLink: "https://developer.paypal.com/docs/subscriptions/",
-    prompt: `Create a comprehensive PayPal subscription billing system:
+    prompt: `**Documentation Reference:** Use this official PayPal documentation as a reference: https://developer.paypal.com/docs/subscriptions/
+
+Create a comprehensive PayPal subscription billing system:
 
 1. Set up subscription plans:
    - Product catalog creation for {{BUYER_COUNTRY}}
@@ -423,7 +458,9 @@ Include frontend subscription interface, backend API, webhook handlers, and data
     description: "Streamlined one-click checkout experience",
     platforms: ["Web"],
     docLink: "https://developer.paypal.com/docs/checkout/",
-    prompt: `Develop an optimized PayPal Express Checkout solution:
+    prompt: `**Documentation Reference:** Use this official PayPal documentation as a reference: https://developer.paypal.com/docs/checkout/
+
+Develop an optimized PayPal Express Checkout solution:
 
 1. Create streamlined checkout flow:
    - Single-page checkout interface
@@ -506,7 +543,9 @@ Provide complete implementation with React frontend, Node.js backend, database s
     description: "Split payments between multiple recipients",
     platforms: ["Web", "Android", "iOS"],
     docLink: "https://developer.paypal.com/docs/multiparty/",
-    prompt: `Build a sophisticated multi-party payment system with PayPal:
+    prompt: `**Documentation Reference:** Use this official PayPal documentation as a reference: https://developer.paypal.com/docs/multiparty/
+
+Build a sophisticated multi-party payment system with PayPal:
 
 1. Configure marketplace setup:
    - Partner account configuration

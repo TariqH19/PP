@@ -9,6 +9,7 @@ const CombinedIntegrationBuilder = ({
   combinedIntegrations,
   setCombinedIntegrations,
   getAvailableIntegrations,
+  getSupportedIntegrations,
   generateCombinedPrompt,
   replaceVariables,
   copyToClipboard,
@@ -79,9 +80,9 @@ const CombinedIntegrationBuilder = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {integrationTypes.map((integration) => {
-            const availableIntegrations = getAvailableIntegrations();
+            const supportedIntegrations = getSupportedIntegrations();
             const isAvailable =
-              !accessToken || availableIntegrations[integration.key];
+              !accessToken || supportedIntegrations.includes(integration.key);
 
             return (
               <label

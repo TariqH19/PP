@@ -6,13 +6,19 @@ const DynamicVariables = ({
   themeClasses,
   countries,
   currencies,
+  frontendTechnologies,
+  backendTechnologies,
 }) => {
   return (
     <div className="mb-8">
       <h4 className={`text-md font-medium ${themeClasses.text} mb-4`}>
-        Dynamic Variables
+        Dynamic Variables & Technology Stack
       </h4>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <p className={`text-sm ${themeClasses.textSecondary} mb-4`}>
+        Configure your project details and select your preferred frontend and
+        backend technologies for customized integration guidance.
+      </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         <div>
           <label
             className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
@@ -162,6 +168,48 @@ const DynamicVariables = ({
             className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
             placeholder="support@yourcompany.com"
           />
+        </div>
+        <div>
+          <label
+            className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
+            Frontend Technology
+          </label>
+          <select
+            value={dynamicVars.frontendTech}
+            onChange={(e) =>
+              setDynamicVars({
+                ...dynamicVars,
+                frontendTech: e.target.value,
+              })
+            }
+            className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}>
+            {frontendTechnologies.map((tech) => (
+              <option key={tech} value={tech}>
+                {tech}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label
+            className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
+            Backend Technology
+          </label>
+          <select
+            value={dynamicVars.backendTech}
+            onChange={(e) =>
+              setDynamicVars({
+                ...dynamicVars,
+                backendTech: e.target.value,
+              })
+            }
+            className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}>
+            {backendTechnologies.map((tech) => (
+              <option key={tech} value={tech}>
+                {tech}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
     </div>

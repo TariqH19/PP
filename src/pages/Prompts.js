@@ -25,10 +25,18 @@ import { prompts } from "../data/prompts";
 import { currencies } from "../data/currencies";
 import { countries } from "../data/countries";
 import {
+  frontendTechnologies,
+  backendTechnologies,
+} from "../data/technologies";
+import {
   scopeToIntegration,
   getAvailablePromptsByScopes,
 } from "../data/scopeMapping";
-import { integrationSections, methodNames } from "../data/integrationTemplates";
+import {
+  integrationSections,
+  methodNames,
+  integrationDocLinks,
+} from "../data/integrationTemplates";
 import {
   featureDescriptions,
   featureImplementations,
@@ -56,6 +64,8 @@ const PayPalPromptLibrary = () => {
     productType: "Digital Product",
     websiteUrl: "https://yourwebsite.com",
     supportEmail: "support@yourcompany.com",
+    frontendTech: "React",
+    backendTech: "Node.js",
   });
 
   // Advanced feature toggles
@@ -119,8 +129,18 @@ const PayPalPromptLibrary = () => {
 - Client Secret: {{CLIENT_SECRET}}
 - Currency: {{CURRENCY}}
 - Target Market: {{BUYER_COUNTRY}}
+- Frontend Technology: {{FRONTEND_TECH}}
+- Backend Technology: {{BACKEND_TECH}}
 
 ${selectedIntegrations.map((key) => integrationSections[key]).join("\n\n")}
+
+## Documentation References
+
+For detailed implementation guidance, refer to the official PayPal documentation:
+
+${selectedIntegrations
+  .map((key) => `- **${methodNames[key]}**: ${integrationDocLinks[key]}`)
+  .join("\n")}
 
 ## Unified Implementation Requirements
 
@@ -160,9 +180,18 @@ ${selectedIntegrations.map((key) => integrationSections[key]).join("\n\n")}
    - Local payment preferences and cultural considerations
    - GDPR and data protection compliance where applicable
 
-Provide complete implementation with HTML structure, CSS styling, JavaScript logic, and server-side integration that seamlessly combines all selected payment methods into a single, cohesive checkout experience optimized for {{BUYER_COUNTRY}} market and {{CURRENCY}} transactions.
+Provide complete implementation with:
+- {{FRONTEND_TECH}} components and structure
+- {{BACKEND_TECH}} server-side integration
+- CSS styling and responsive design
+- JavaScript logic optimized for {{FRONTEND_TECH}}
+- Server-side API integration using {{BACKEND_TECH}}
+- Error handling and user feedback
+- Testing strategies for both {{FRONTEND_TECH}} and {{BACKEND_TECH}}
 
-Include detailed setup instructions, configuration examples, and troubleshooting guidance for each payment method while ensuring they work together harmoniously.`;
+Create a cohesive checkout experience optimized for {{BUYER_COUNTRY}} market and {{CURRENCY}} transactions that seamlessly combines all selected payment methods.
+
+Include detailed setup instructions, configuration examples, and troubleshooting guidance for each payment method while ensuring they work together harmoniously across your {{FRONTEND_TECH}}/{{BACKEND_TECH}} technology stack.`;
 
     return basePrompt;
   };
@@ -229,10 +258,27 @@ Include detailed setup instructions, configuration examples, and troubleshooting
         const supportedIntegrations = scopeToIntegration[scope] || [];
         return supportedIntegrations.includes(integration);
       });
-      available[integration] = isSupported && combinedIntegrations[integration];
+      // Return the current selection state only if the integration is supported by scopes
+      available[integration] = isSupported
+        ? combinedIntegrations[integration]
+        : false;
     });
 
     return available;
+  };
+
+  // Get which integrations are supported by current scopes (regardless of selection state)
+  const getSupportedIntegrations = () => {
+    if (!accessToken || availableScopes.length === 0) {
+      return Object.keys(combinedIntegrations);
+    }
+
+    return Object.keys(combinedIntegrations).filter((integration) => {
+      return availableScopes.some((scope) => {
+        const supportedIntegrations = scopeToIntegration[scope] || [];
+        return supportedIntegrations.includes(integration);
+      });
+    });
   };
 
   const categories = [
@@ -282,7 +328,9 @@ Include detailed setup instructions, configuration examples, and troubleshooting
       .replace(/\{\{COMPANY_NAME\}\}/g, dynamicVars.companyName)
       .replace(/\{\{PRODUCT_TYPE\}\}/g, dynamicVars.productType)
       .replace(/\{\{WEBSITE_URL\}\}/g, dynamicVars.websiteUrl)
-      .replace(/\{\{SUPPORT_EMAIL\}\}/g, dynamicVars.supportEmail);
+      .replace(/\{\{SUPPORT_EMAIL\}\}/g, dynamicVars.supportEmail)
+      .replace(/\{\{FRONTEND_TECH\}\}/g, dynamicVars.frontendTech)
+      .replace(/\{\{BACKEND_TECH\}\}/g, dynamicVars.backendTech);
 
     // Add advanced features section if any are enabled
     const enabledFeatures = Object.keys(advancedFeatures).filter(
@@ -499,6 +547,8 @@ Ensure all advanced features are implemented with proper error handling, logging
               themeClasses={themeClasses}
               countries={countries}
               currencies={currencies}
+              frontendTechnologies={frontendTechnologies}
+              backendTechnologies={backendTechnologies}
             />
 
             {/* Advanced Features */}
@@ -766,6 +816,7 @@ Ensure all advanced features are implemented with proper error handling, logging
         combinedIntegrations={combinedIntegrations}
         setCombinedIntegrations={setCombinedIntegrations}
         getAvailableIntegrations={getAvailableIntegrations}
+        getSupportedIntegrations={getSupportedIntegrations}
         generateCombinedPrompt={generateCombinedPrompt}
         replaceVariables={replaceVariables}
         copyToClipboard={copyToClipboard}
