@@ -13,7 +13,7 @@ const App = () => {
       {/* <Nav /> */}
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/compare" element={<Comparer />} />
+        <Route path="/noscope" element={<Comparer />} />
         <Route path="/data" element={<Data />} />
         <Route path="/prompts" element={<Prompts />} />
         <Route path="/emails" element={<Emails />} />
