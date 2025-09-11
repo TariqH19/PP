@@ -13,11 +13,18 @@ import {
   Select,
   MenuItem,
   TextField,
+  Alert,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Chip,
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import FileInput from "../components/Fileinput";
 import ComparisonResult from "../components/ComparisonResult";
 import * as Diff from "diff";
 import axios from "axios";
+import { findMatchingProcessor } from "../data/paymentProcessors";
 
 function Filecomp() {
   const [file1Content, setFile1Content] = useState("");
@@ -31,6 +38,7 @@ function Filecomp() {
   // const [fileContent, setFileContent] = useState("");
   const [inputMethod, setInputMethod] = useState("paste"); // Default to paste text
   const [fileVersion, setFileVersion] = useState("sandbox"); // Default to sandbox version
+  const [alternativeMatch, setAlternativeMatch] = useState(null); // For storing alternative payment processor matches
 
   // Pre-existing file content for Sandbox and Live versions
   const sandboxFileContent =
@@ -82,14 +90,20 @@ function Filecomp() {
 
   const handleTabChange = (event, newValue) => {
     setInputMode(newValue);
+    // Clear alternative match when input mode changes
+    setAlternativeMatch(null);
   };
 
   const handleInputMethodChange = (event) => {
     setInputMethod(event.target.value);
+    // Clear alternative match when input method changes
+    setAlternativeMatch(null);
   };
 
   const handleFileVersionChange = (event) => {
     setFileVersion(event.target.value);
+    // Clear alternative match when version changes
+    setAlternativeMatch(null);
   };
 
   const compareContent = () => {
@@ -109,6 +123,18 @@ function Filecomp() {
       (part) => !part.added && !part.removed
     );
     setFilesIdentical(areContentsIdentical);
+
+    // Only check alternative payment processors for live PayPal comparison
+    if (
+      inputMode === "existing-file" &&
+      fileVersion === "live" &&
+      !areContentsIdentical
+    ) {
+      const matchingProcessor = findMatchingProcessor(textOrFileContent);
+      setAlternativeMatch(matchingProcessor);
+    } else {
+      setAlternativeMatch(null);
+    }
   };
 
   return (
@@ -278,17 +304,140 @@ function Filecomp() {
           </Box>
         </Paper>
         {filesIdentical !== null && (
-          <Box mt={3} textAlign="center">
-            <Typography variant="h6" color={filesIdentical ? "green" : "red"}>
-              {filesIdentical
-                ? "Contents are identical"
-                : "Contents are different"}
-            </Typography>
+          <Box mt={4}>
+            <Paper
+              elevation={2}
+              sx={{
+                p: 3,
+                backgroundColor: filesIdentical ? "#f1f8e9" : "#fff3e0",
+              }}>
+              {/* Main Result Header */}
+              <Box textAlign="center" mb={3}>
+                <Typography variant="h4" gutterBottom>
+                  Comparison Result
+                </Typography>
+
+                {/* File Labels */}
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={3}
+                  sx={{ maxWidth: 600, mx: "auto" }}>
+                  <Box textAlign="center" flex={1}>
+                    <Chip
+                      label={`PayPal ${
+                        fileVersion === "sandbox" ? "Sandbox" : "Live"
+                      } File`}
+                      color="primary"
+                      variant="outlined"
+                      sx={{ mb: 1 }}
+                    />
+                    <Typography variant="body2" color="text.secondary">
+                      Reference File
+                    </Typography>
+                  </Box>
+
+                  <Typography variant="h6" color="text.secondary" mx={2}>
+                    vs
+                  </Typography>
+
+                  <Box textAlign="center" flex={1}>
+                    <Chip
+                      label="Your File"
+                      color="secondary"
+                      variant="outlined"
+                      sx={{ mb: 1 }}
+                    />
+                    <Typography variant="body2" color="text.secondary">
+                      {inputMethod === "paste"
+                        ? "Pasted Content"
+                        : inputMethod === "upload"
+                        ? "Uploaded File"
+                        : "Fetched from URL"}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Match Result */}
+                <Box
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    backgroundColor: filesIdentical ? "#4caf50" : "#ff9800",
+                    color: "white",
+                    mb: 2,
+                  }}>
+                  <Typography variant="h5" fontWeight="bold">
+                    {filesIdentical ? "✓ FILES MATCH" : "✗ FILES DO NOT MATCH"}
+                  </Typography>
+                  <Typography variant="body1" mt={1}>
+                    {filesIdentical
+                      ? `Your file is identical to PayPal's ${fileVersion} domain association file`
+                      : `Your file differs from PayPal's ${fileVersion} domain association file`}
+                  </Typography>
+                </Box>
+              </Box>
+
+              {/* Alternative Payment Processor Match */}
+              {inputMode === "existing-file" &&
+                fileVersion === "live" &&
+                !filesIdentical && (
+                  <Box mb={3}>
+                    {alternativeMatch ? (
+                      <Alert severity="info" sx={{ maxWidth: 600, mx: "auto" }}>
+                        <Typography variant="body1">
+                          <strong>Alternative Match Found:</strong> Your file
+                          appears to match <strong>{alternativeMatch}</strong>'s
+                          domain association file.
+                        </Typography>
+                      </Alert>
+                    ) : (
+                      <Alert
+                        severity="warning"
+                        sx={{ maxWidth: 600, mx: "auto" }}>
+                        <Typography variant="body1">
+                          <strong>No Alternative Match:</strong> Your file
+                          doesn't match any known payment processor's domain
+                          association file in our database.
+                        </Typography>
+                      </Alert>
+                    )}
+                  </Box>
+                )}
+
+              {/* Detailed Comparison (Collapsible) */}
+              {!filesIdentical && comparisonResult && (
+                <Box sx={{ maxWidth: 800, mx: "auto" }}>
+                  <Accordion>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="detailed-comparison-content"
+                      id="detailed-comparison-header">
+                      <Typography variant="h6">
+                        View Detailed Differences
+                      </Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Typography variant="body2" color="text.secondary" mb={2}>
+                        Green text shows additions in your file, red text shows
+                        what's missing compared to PayPal's file.
+                      </Typography>
+                      <ComparisonResult result={comparisonResult} />
+                    </AccordionDetails>
+                  </Accordion>
+                </Box>
+              )}
+            </Paper>
           </Box>
         )}
-        {comparisonResult && (
-          <Box mt={4}>
-            <ComparisonResult result={comparisonResult} />
+
+        {/* Remove the old comparison result display */}
+        {comparisonResult && filesIdentical && (
+          <Box mt={2} textAlign="center">
+            <Typography variant="body2" color="text.secondary">
+              Files are identical - no differences to display
+            </Typography>
           </Box>
         )}
       </Box>
