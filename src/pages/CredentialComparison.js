@@ -746,21 +746,98 @@ const CredentialComparison = () => {
                           const unique2 = avail2.filter(
                             (i) => !avail1.includes(i)
                           );
+                          const shared = avail1.filter((i) =>
+                            avail2.includes(i)
+                          );
+
                           return (
-                            <div className="space-y-1">
+                            <div className="space-y-2">
                               <div className={`text-blue-700`}>
-                                Only in {creds[0].name}: {unique1.length}
+                                <strong>Only in {creds[0].name}:</strong>{" "}
+                                {unique1.length}
                               </div>
                               <div className={`text-blue-700`}>
-                                Only in {creds[1].name}: {unique2.length}
+                                <strong>Only in {creds[1].name}:</strong>{" "}
+                                {unique2.length}
                               </div>
                               <div className={`text-blue-700`}>
-                                Shared:{" "}
-                                {
-                                  avail1.filter((i) => avail2.includes(i))
-                                    .length
-                                }
+                                <strong>Shared:</strong> {shared.length}
                               </div>
+
+                              {/* Quick expand for details */}
+                              <details className="mt-2">
+                                <summary className="cursor-pointer text-blue-600 hover:underline text-xs">
+                                  View detailed differences
+                                </summary>
+                                <div className="mt-2 space-y-2 text-xs">
+                                  {unique1.length > 0 && (
+                                    <div>
+                                      <div className="font-medium text-green-700">
+                                        ✅ Unique to {creds[0].name}:
+                                      </div>
+                                      <div className="ml-4 space-y-1">
+                                        {unique1.map((integration) => (
+                                          <div
+                                            key={integration}
+                                            className="text-green-600">
+                                            •{" "}
+                                            {integrationToPromptMapping[
+                                              integration
+                                            ] || integration}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {unique2.length > 0 && (
+                                    <div>
+                                      <div className="font-medium text-orange-700">
+                                        ⚠️ Unique to {creds[1].name}:
+                                      </div>
+                                      <div className="ml-4 space-y-1">
+                                        {unique2.map((integration) => (
+                                          <div
+                                            key={integration}
+                                            className="text-orange-600">
+                                            •{" "}
+                                            {integrationToPromptMapping[
+                                              integration
+                                            ] || integration}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {shared.length > 0 && (
+                                    <div>
+                                      <div className="font-medium text-blue-700">
+                                        🤝 Available in both:
+                                      </div>
+                                      <div className="ml-4 space-y-1">
+                                        {shared
+                                          .slice(0, 3)
+                                          .map((integration) => (
+                                            <div
+                                              key={integration}
+                                              className="text-blue-600">
+                                              •{" "}
+                                              {integrationToPromptMapping[
+                                                integration
+                                              ] || integration}
+                                            </div>
+                                          ))}
+                                        {shared.length > 3 && (
+                                          <div className="text-blue-500 italic">
+                                            ... and {shared.length - 3} more
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </details>
                             </div>
                           );
                         }
