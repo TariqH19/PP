@@ -808,8 +808,17 @@ const CredentialComparison = () => {
                                                     (scope) => (
                                                       <div
                                                         key={scope}
-                                                        className="truncate">
-                                                        └ {scope}
+                                                        className="flex items-center gap-1 group cursor-pointer hover:bg-green-50 p-1 rounded"
+                                                        onClick={() =>
+                                                          copyToClipboard(scope)
+                                                        }
+                                                        title="Click to copy scope URI">
+                                                        <span className="truncate">
+                                                          └ {scope}
+                                                        </span>
+                                                        <span className="opacity-0 group-hover:opacity-100 transition-opacity text-green-400">
+                                                          📋
+                                                        </span>
                                                       </div>
                                                     )
                                                   )}
@@ -860,8 +869,17 @@ const CredentialComparison = () => {
                                                     (scope) => (
                                                       <div
                                                         key={scope}
-                                                        className="truncate">
-                                                        └ {scope}
+                                                        className="flex items-center gap-1 group cursor-pointer hover:bg-orange-50 p-1 rounded"
+                                                        onClick={() =>
+                                                          copyToClipboard(scope)
+                                                        }
+                                                        title="Click to copy scope URI">
+                                                        <span className="truncate">
+                                                          └ {scope}
+                                                        </span>
+                                                        <span className="opacity-0 group-hover:opacity-100 transition-opacity text-orange-400">
+                                                          📋
+                                                        </span>
                                                       </div>
                                                     )
                                                   )}
@@ -920,8 +938,19 @@ const CredentialComparison = () => {
                                                       .map((scope) => (
                                                         <div
                                                           key={scope}
-                                                          className="truncate">
-                                                          └ {scope}
+                                                          className="flex items-center gap-1 group cursor-pointer hover:bg-blue-50 p-1 rounded"
+                                                          onClick={() =>
+                                                            copyToClipboard(
+                                                              scope
+                                                            )
+                                                          }
+                                                          title="Click to copy scope URI">
+                                                          <span className="truncate">
+                                                            └ {scope}
+                                                          </span>
+                                                          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-400">
+                                                            📋
+                                                          </span>
                                                         </div>
                                                       ))}
                                                     {enabledByScopes.length >
