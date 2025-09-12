@@ -776,16 +776,48 @@ const CredentialComparison = () => {
                                         ✅ Unique to {creds[0].name}:
                                       </div>
                                       <div className="ml-4 space-y-1">
-                                        {unique1.map((integration) => (
-                                          <div
-                                            key={integration}
-                                            className="text-green-600">
-                                            •{" "}
-                                            {integrationToPromptMapping[
-                                              integration
-                                            ] || integration}
-                                          </div>
-                                        ))}
+                                        {unique1.map((integration) => {
+                                          // Find the scopes that enable this integration
+                                          const enabledByScopes =
+                                            Object.entries(scopeToIntegration)
+                                              .filter(([scope, integrations]) =>
+                                                integrations.includes(
+                                                  integration
+                                                )
+                                              )
+                                              .map(([scope]) => scope)
+                                              .filter((scope) =>
+                                                creds[0].availableScopes.includes(
+                                                  scope
+                                                )
+                                              );
+
+                                          return (
+                                            <div
+                                              key={integration}
+                                              className="text-green-600">
+                                              <div>
+                                                •{" "}
+                                                {integrationToPromptMapping[
+                                                  integration
+                                                ] || integration}
+                                              </div>
+                                              {enabledByScopes.length > 0 && (
+                                                <div className="ml-4 text-xs text-green-500 font-mono">
+                                                  {enabledByScopes.map(
+                                                    (scope) => (
+                                                      <div
+                                                        key={scope}
+                                                        className="truncate">
+                                                        └ {scope}
+                                                      </div>
+                                                    )
+                                                  )}
+                                                </div>
+                                              )}
+                                            </div>
+                                          );
+                                        })}
                                       </div>
                                     </div>
                                   )}
@@ -796,16 +828,48 @@ const CredentialComparison = () => {
                                         ⚠️ Unique to {creds[1].name}:
                                       </div>
                                       <div className="ml-4 space-y-1">
-                                        {unique2.map((integration) => (
-                                          <div
-                                            key={integration}
-                                            className="text-orange-600">
-                                            •{" "}
-                                            {integrationToPromptMapping[
-                                              integration
-                                            ] || integration}
-                                          </div>
-                                        ))}
+                                        {unique2.map((integration) => {
+                                          // Find the scopes that enable this integration
+                                          const enabledByScopes =
+                                            Object.entries(scopeToIntegration)
+                                              .filter(([scope, integrations]) =>
+                                                integrations.includes(
+                                                  integration
+                                                )
+                                              )
+                                              .map(([scope]) => scope)
+                                              .filter((scope) =>
+                                                creds[1].availableScopes.includes(
+                                                  scope
+                                                )
+                                              );
+
+                                          return (
+                                            <div
+                                              key={integration}
+                                              className="text-orange-600">
+                                              <div>
+                                                •{" "}
+                                                {integrationToPromptMapping[
+                                                  integration
+                                                ] || integration}
+                                              </div>
+                                              {enabledByScopes.length > 0 && (
+                                                <div className="ml-4 text-xs text-orange-500 font-mono">
+                                                  {enabledByScopes.map(
+                                                    (scope) => (
+                                                      <div
+                                                        key={scope}
+                                                        className="truncate">
+                                                        └ {scope}
+                                                      </div>
+                                                    )
+                                                  )}
+                                                </div>
+                                              )}
+                                            </div>
+                                          );
+                                        })}
                                       </div>
                                     </div>
                                   )}
@@ -818,16 +882,62 @@ const CredentialComparison = () => {
                                       <div className="ml-4 space-y-1">
                                         {shared
                                           .slice(0, 3)
-                                          .map((integration) => (
-                                            <div
-                                              key={integration}
-                                              className="text-blue-600">
-                                              •{" "}
-                                              {integrationToPromptMapping[
-                                                integration
-                                              ] || integration}
-                                            </div>
-                                          ))}
+                                          .map((integration) => {
+                                            // Find common scopes that enable this integration in both accounts
+                                            const enabledByScopes =
+                                              Object.entries(scopeToIntegration)
+                                                .filter(
+                                                  ([scope, integrations]) =>
+                                                    integrations.includes(
+                                                      integration
+                                                    )
+                                                )
+                                                .map(([scope]) => scope)
+                                                .filter(
+                                                  (scope) =>
+                                                    creds[0].availableScopes.includes(
+                                                      scope
+                                                    ) &&
+                                                    creds[1].availableScopes.includes(
+                                                      scope
+                                                    )
+                                                );
+
+                                            return (
+                                              <div
+                                                key={integration}
+                                                className="text-blue-600">
+                                                <div>
+                                                  •{" "}
+                                                  {integrationToPromptMapping[
+                                                    integration
+                                                  ] || integration}
+                                                </div>
+                                                {enabledByScopes.length > 0 && (
+                                                  <div className="ml-4 text-xs text-blue-500 font-mono">
+                                                    {enabledByScopes
+                                                      .slice(0, 2)
+                                                      .map((scope) => (
+                                                        <div
+                                                          key={scope}
+                                                          className="truncate">
+                                                          └ {scope}
+                                                        </div>
+                                                      ))}
+                                                    {enabledByScopes.length >
+                                                      2 && (
+                                                      <div className="text-blue-400 italic">
+                                                        └ ... and{" "}
+                                                        {enabledByScopes.length -
+                                                          2}{" "}
+                                                        more
+                                                      </div>
+                                                    )}
+                                                  </div>
+                                                )}
+                                              </div>
+                                            );
+                                          })}
                                         {shared.length > 3 && (
                                           <div className="text-blue-500 italic">
                                             ... and {shared.length - 3} more
