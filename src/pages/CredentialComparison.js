@@ -532,15 +532,29 @@ const CredentialComparison = () => {
                 !credential.clientSecret && (
                   <button
                     onClick={() => {
+                      // Different credentials for different accounts
+                      const sampleCredentials = {
+                        1: { // Account A
+                          clientId: "AXakS410la2fYSpiyC7A1nNsv_45cgH-_Cih7Gn1ggy_NUvIBZ_MSdWReMU9AqeupbTuo3lUkw5G-HsH",
+                          clientSecret: "EFzfHiNWctBdxGgVTyx6oYfJIanFccRu6RhLw2iJe-BR7Nk8jAx1_FdhvG3L2fOdoYSpqU7i4s6i4j30"
+                        },
+                        2: { // Account B
+                          clientId: "AXXwxhARSbwLJhdE1NUrEszITRBb4naSbQwmjn34L-yLBPcXoc5qPLMwk_-LPwIXbseZ1Nm1gJIAX9vU",
+                          clientSecret: "EGVFqqDZwHg_gGi9i7yXE8dag3EYxwh9LAw9uV94ft9oMbMNqKQzMV8yJNTBXaU7Oar3y58JhdUCiGfl"
+                        }
+                      };
+                      
+                      const creds = sampleCredentials[credential.id] || sampleCredentials[1];
+                      
                       updateCredential(
                         credential.id,
                         "clientId",
-                        "AXakS410la2fYSpiyC7A1nNsv_45cgH-_Cih7Gn1ggy_NUvIBZ_MSdWReMU9AqeupbTuo3lUkw5G-HsH"
+                        creds.clientId
                       );
                       updateCredential(
                         credential.id,
                         "clientSecret",
-                        "EFzfHiNWctBdxGgVTyx6oYfJIanFccRu6RhLw2iJe-BR7Nk8jAx1_FdhvG3L2fOdoYSpqU7i4s6i4j30"
+                        creds.clientSecret
                       );
                       showToast(
                         `✨ Sample credentials loaded for ${credential.name}!`,
@@ -1010,27 +1024,74 @@ const CredentialComparison = () => {
                       {credential.name} ({credential.environment})
                     </h3>
 
-                    {/* Available Integrations */}
+                    {/* All Integrations with Status */}
                     <div className="mb-6">
                       <h4
                         className={`text-lg font-medium ${themeClasses.text} mb-3 flex items-center`}>
-                        <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-                        Available Integrations ({availableIntegrations.length})
+                        <CheckCircle className="w-5 h-5 text-blue-500 mr-2" />
+                        All PayPal Integrations ({getAllIntegrations().length})
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {availableIntegrations.map((integration) => (
-                          <div
-                            key={integration}
-                            className={`p-3 rounded-lg bg-green-50 border-green-200 border flex items-center`}>
-                            <CheckCircle
-                              className={`w-4 h-4 text-green-600 mr-2`}
-                            />
-                            <span className={`text-sm text-green-800`}>
-                              {integrationToPromptMapping[integration] ||
-                                integration}
-                            </span>
-                          </div>
-                        ))}
+                        {getAllIntegrations().map((integration) => {
+                          const isAvailable = availableIntegrations.includes(integration);
+                          const requiredScopes = Object.entries(scopeToIntegration)
+                            .filter(([scope, integrations]) => integrations.includes(integration))
+                            .map(([scope]) => scope);
+                          const missingScopes = requiredScopes.filter(scope => 
+                            !credential.availableScopes.includes(scope)
+                          );
+                          
+                          return (
+                            <div
+                              key={integration}
+                              className={`p-3 rounded-lg border flex items-start ${
+                                isAvailable 
+                                  ? 'bg-green-50 border-green-200' 
+                                  : 'bg-yellow-50 border-yellow-200'
+                              }`}>
+                              {isAvailable ? (
+                                <CheckCircle className="w-4 h-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
+                              ) : (
+                                <div className="w-4 h-4 text-yellow-600 mr-2 mt-0.5 flex-shrink-0" title={`Missing ${missingScopes.length} required scope(s)`}>
+                                  ⚠️
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <span className={`text-sm block ${
+                                  isAvailable ? 'text-green-800' : 'text-yellow-800'
+                                }`}>
+                                  {integrationToPromptMapping[integration] || integration}
+                                </span>
+                                {!isAvailable && missingScopes.length > 0 && (
+                                  <div className="text-xs text-yellow-600 mt-1">
+                                    Missing {missingScopes.length} scope{missingScopes.length > 1 ? 's' : ''}
+                                    <details className="mt-1">
+                                      <summary className="cursor-pointer hover:underline">
+                                        View required scopes
+                                      </summary>
+                                      <div className="mt-1 space-y-1 font-mono text-xs">
+                                        {missingScopes.slice(0, 2).map(scope => (
+                                          <div 
+                                            key={scope}
+                                            className="cursor-pointer hover:bg-yellow-100 p-1 rounded truncate"
+                                            onClick={() => copyToClipboard(scope)}
+                                            title="Click to copy scope URI">
+                                            📋 {scope}
+                                          </div>
+                                        ))}
+                                        {missingScopes.length > 2 && (
+                                          <div className="text-yellow-500 italic">
+                                            ... and {missingScopes.length - 2} more
+                                          </div>
+                                        )}
+                                      </div>
+                                    </details>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
 
