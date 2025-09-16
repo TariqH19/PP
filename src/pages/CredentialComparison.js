@@ -534,18 +534,26 @@ const CredentialComparison = () => {
                     onClick={() => {
                       // Different credentials for different accounts
                       const sampleCredentials = {
-                        1: { // Account A
-                          clientId: "AXakS410la2fYSpiyC7A1nNsv_45cgH-_Cih7Gn1ggy_NUvIBZ_MSdWReMU9AqeupbTuo3lUkw5G-HsH",
-                          clientSecret: "EFzfHiNWctBdxGgVTyx6oYfJIanFccRu6RhLw2iJe-BR7Nk8jAx1_FdhvG3L2fOdoYSpqU7i4s6i4j30"
+                        1: {
+                          // Account A
+                          clientId:
+                            "AXakS410la2fYSpiyC7A1nNsv_45cgH-_Cih7Gn1ggy_NUvIBZ_MSdWReMU9AqeupbTuo3lUkw5G-HsH",
+                          clientSecret:
+                            "EFzfHiNWctBdxGgVTyx6oYfJIanFccRu6RhLw2iJe-BR7Nk8jAx1_FdhvG3L2fOdoYSpqU7i4s6i4j30",
                         },
-                        2: { // Account B
-                          clientId: "AXXwxhARSbwLJhdE1NUrEszITRBb4naSbQwmjn34L-yLBPcXoc5qPLMwk_-LPwIXbseZ1Nm1gJIAX9vU",
-                          clientSecret: "EGVFqqDZwHg_gGi9i7yXE8dag3EYxwh9LAw9uV94ft9oMbMNqKQzMV8yJNTBXaU7Oar3y58JhdUCiGfl"
-                        }
+                        2: {
+                          // Account B
+                          clientId:
+                            "AXXwxhARSbwLJhdE1NUrEszITRBb4naSbQwmjn34L-yLBPcXoc5qPLMwk_-LPwIXbseZ1Nm1gJIAX9vU",
+                          clientSecret:
+                            "EGVFqqDZwHg_gGi9i7yXE8dag3EYxwh9LAw9uV94ft9oMbMNqKQzMV8yJNTBXaU7Oar3y58JhdUCiGfl",
+                        },
                       };
-                      
-                      const creds = sampleCredentials[credential.id] || sampleCredentials[1];
-                      
+
+                      const creds =
+                        sampleCredentials[credential.id] ||
+                        sampleCredentials[1];
+
                       updateCredential(
                         credential.id,
                         "clientId",
@@ -764,231 +772,149 @@ const CredentialComparison = () => {
                             avail2.includes(i)
                           );
 
+                          // Scope differences
+                          const scopes1 = creds[0].availableScopes;
+                          const scopes2 = creds[1].availableScopes;
+                          const uniqueScopes1 = scopes1.filter(
+                            (scope) => !scopes2.includes(scope)
+                          );
+                          const uniqueScopes2 = scopes2.filter(
+                            (scope) => !scopes1.includes(scope)
+                          );
+                          const sharedScopes = scopes1.filter((scope) =>
+                            scopes2.includes(scope)
+                          );
+
                           return (
                             <div className="space-y-2">
                               <div className={`text-blue-700`}>
-                                <strong>Only in {creds[0].name}:</strong>{" "}
-                                {unique1.length}
+                                <strong>Integration Differences:</strong>
                               </div>
-                              <div className={`text-blue-700`}>
-                                <strong>Only in {creds[1].name}:</strong>{" "}
-                                {unique2.length}
+                              <div className={`text-blue-700 ml-4`}>
+                                • Only in {creds[0].name}: {unique1.length}{" "}
+                                integrations
                               </div>
-                              <div className={`text-blue-700`}>
-                                <strong>Shared:</strong> {shared.length}
+                              <div className={`text-blue-700 ml-4`}>
+                                • Only in {creds[1].name}: {unique2.length}{" "}
+                                integrations
+                              </div>
+                              <div className={`text-blue-700 ml-4`}>
+                                • Shared: {shared.length} integrations
+                              </div>
+
+                              <div className={`text-blue-700 mt-3`}>
+                                <strong>Scope Differences:</strong>
+                              </div>
+                              <div className={`text-blue-700 ml-4`}>
+                                • {uniqueScopes1.length} scopes only in{" "}
+                                {creds[0].name}
+                              </div>
+                              <div className={`text-blue-700 ml-4`}>
+                                • {uniqueScopes2.length} scopes only in{" "}
+                                {creds[1].name}
+                              </div>
+                              <div className={`text-blue-700 ml-4`}>
+                                • {sharedScopes.length} shared scopes
+                              </div>
+                              <div
+                                className={`text-blue-700 ml-4 text-xs opacity-75`}>
+                                Total: {creds[0].name} ({scopes1.length}) |{" "}
+                                {creds[1].name} ({scopes2.length})
                               </div>
 
                               {/* Quick expand for details */}
                               <details className="mt-2">
                                 <summary className="cursor-pointer text-blue-600 hover:underline text-xs">
-                                  View detailed differences
+                                  View detailed scope differences
                                 </summary>
                                 <div className="mt-2 space-y-2 text-xs">
-                                  {unique1.length > 0 && (
-                                    <div>
-                                      <div className="font-medium text-green-700">
-                                        ✅ Unique to {creds[0].name}:
-                                      </div>
-                                      <div className="ml-4 space-y-1">
-                                        {unique1.map((integration) => {
-                                          // Find the scopes that enable this integration
-                                          const enabledByScopes =
-                                            Object.entries(scopeToIntegration)
-                                              .filter(([scope, integrations]) =>
-                                                integrations.includes(
-                                                  integration
-                                                )
-                                              )
-                                              .map(([scope]) => scope)
-                                              .filter((scope) =>
-                                                creds[0].availableScopes.includes(
-                                                  scope
-                                                )
-                                              );
+                                  {/* Scope Details */}
+                                  <div className="mt-4 pt-4 border-t border-gray-200">
+                                    <div className="font-medium text-purple-700 mb-2">
+                                      📋 Scope Differences:
+                                    </div>
 
-                                          return (
+                                    {uniqueScopes1.length > 0 && (
+                                      <div className="mb-3">
+                                        <div className="font-medium text-green-700">
+                                          ✅ Scopes only in {creds[0].name}: (
+                                          {uniqueScopes1.length})
+                                        </div>
+                                        <div className="ml-4 space-y-1 max-h-32 overflow-y-auto">
+                                          {uniqueScopes1.map((scope) => (
                                             <div
-                                              key={integration}
-                                              className="text-green-600">
-                                              <div>
-                                                •{" "}
-                                                {integrationToPromptMapping[
-                                                  integration
-                                                ] || integration}
-                                              </div>
-                                              {enabledByScopes.length > 0 && (
-                                                <div className="ml-4 text-xs text-green-500 font-mono">
-                                                  {enabledByScopes.map(
-                                                    (scope) => (
-                                                      <div
-                                                        key={scope}
-                                                        className="flex items-center gap-1 group cursor-pointer hover:bg-green-50 p-1 rounded"
-                                                        onClick={() =>
-                                                          copyToClipboard(scope)
-                                                        }
-                                                        title="Click to copy scope URI">
-                                                        <span className="truncate">
-                                                          └ {scope}
-                                                        </span>
-                                                        <span className="opacity-0 group-hover:opacity-100 transition-opacity text-green-400">
-                                                          📋
-                                                        </span>
-                                                      </div>
-                                                    )
-                                                  )}
-                                                </div>
-                                              )}
+                                              key={scope}
+                                              className="flex items-center gap-1 group cursor-pointer hover:bg-green-50 p-1 rounded"
+                                              onClick={() =>
+                                                copyToClipboard(scope)
+                                              }
+                                              title="Click to copy scope URI">
+                                              <span className="text-xs font-mono text-green-600 truncate">
+                                                • {scope}
+                                              </span>
+                                              <span className="opacity-0 group-hover:opacity-100 transition-opacity text-green-400">
+                                                📋
+                                              </span>
                                             </div>
-                                          );
-                                        })}
+                                          ))}
+                                        </div>
                                       </div>
-                                    </div>
-                                  )}
+                                    )}
 
-                                  {unique2.length > 0 && (
-                                    <div>
-                                      <div className="font-medium text-orange-700">
-                                        ⚠️ Unique to {creds[1].name}:
-                                      </div>
-                                      <div className="ml-4 space-y-1">
-                                        {unique2.map((integration) => {
-                                          // Find the scopes that enable this integration
-                                          const enabledByScopes =
-                                            Object.entries(scopeToIntegration)
-                                              .filter(([scope, integrations]) =>
-                                                integrations.includes(
-                                                  integration
-                                                )
-                                              )
-                                              .map(([scope]) => scope)
-                                              .filter((scope) =>
-                                                creds[1].availableScopes.includes(
-                                                  scope
-                                                )
-                                              );
-
-                                          return (
+                                    {uniqueScopes2.length > 0 && (
+                                      <div className="mb-3">
+                                        <div className="font-medium text-orange-700">
+                                          🟠 Scopes only in {creds[1].name}: (
+                                          {uniqueScopes2.length})
+                                        </div>
+                                        <div className="ml-4 space-y-1 max-h-32 overflow-y-auto">
+                                          {uniqueScopes2.map((scope) => (
                                             <div
-                                              key={integration}
-                                              className="text-orange-600">
-                                              <div>
-                                                •{" "}
-                                                {integrationToPromptMapping[
-                                                  integration
-                                                ] || integration}
-                                              </div>
-                                              {enabledByScopes.length > 0 && (
-                                                <div className="ml-4 text-xs text-orange-500 font-mono">
-                                                  {enabledByScopes.map(
-                                                    (scope) => (
-                                                      <div
-                                                        key={scope}
-                                                        className="flex items-center gap-1 group cursor-pointer hover:bg-orange-50 p-1 rounded"
-                                                        onClick={() =>
-                                                          copyToClipboard(scope)
-                                                        }
-                                                        title="Click to copy scope URI">
-                                                        <span className="truncate">
-                                                          └ {scope}
-                                                        </span>
-                                                        <span className="opacity-0 group-hover:opacity-100 transition-opacity text-orange-400">
-                                                          📋
-                                                        </span>
-                                                      </div>
-                                                    )
-                                                  )}
-                                                </div>
-                                              )}
+                                              key={scope}
+                                              className="flex items-center gap-1 group cursor-pointer hover:bg-orange-50 p-1 rounded"
+                                              onClick={() =>
+                                                copyToClipboard(scope)
+                                              }
+                                              title="Click to copy scope URI">
+                                              <span className="text-xs font-mono text-orange-600 truncate">
+                                                • {scope}
+                                              </span>
+                                              <span className="opacity-0 group-hover:opacity-100 transition-opacity text-orange-400">
+                                                📋
+                                              </span>
                                             </div>
-                                          );
-                                        })}
+                                          ))}
+                                        </div>
                                       </div>
-                                    </div>
-                                  )}
+                                    )}
 
-                                  {shared.length > 0 && (
-                                    <div>
-                                      <div className="font-medium text-blue-700">
-                                        🤝 Available in both:
+                                    {sharedScopes.length > 0 && (
+                                      <div>
+                                        <div className="font-medium text-blue-700">
+                                          🤝 Shared scopes: (
+                                          {sharedScopes.length})
+                                        </div>
+                                        <div className="ml-4 space-y-1 max-h-32 overflow-y-auto">
+                                          {sharedScopes.map((scope) => (
+                                            <div
+                                              key={scope}
+                                              className="flex items-center gap-1 group cursor-pointer hover:bg-blue-50 p-1 rounded"
+                                              onClick={() =>
+                                                copyToClipboard(scope)
+                                              }
+                                              title="Click to copy scope URI">
+                                              <span className="text-xs font-mono text-blue-600 truncate">
+                                                • {scope}
+                                              </span>
+                                              <span className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-400">
+                                                📋
+                                              </span>
+                                            </div>
+                                          ))}
+                                        </div>
                                       </div>
-                                      <div className="ml-4 space-y-1">
-                                        {shared
-                                          .slice(0, 3)
-                                          .map((integration) => {
-                                            // Find common scopes that enable this integration in both accounts
-                                            const enabledByScopes =
-                                              Object.entries(scopeToIntegration)
-                                                .filter(
-                                                  ([scope, integrations]) =>
-                                                    integrations.includes(
-                                                      integration
-                                                    )
-                                                )
-                                                .map(([scope]) => scope)
-                                                .filter(
-                                                  (scope) =>
-                                                    creds[0].availableScopes.includes(
-                                                      scope
-                                                    ) &&
-                                                    creds[1].availableScopes.includes(
-                                                      scope
-                                                    )
-                                                );
-
-                                            return (
-                                              <div
-                                                key={integration}
-                                                className="text-blue-600">
-                                                <div>
-                                                  •{" "}
-                                                  {integrationToPromptMapping[
-                                                    integration
-                                                  ] || integration}
-                                                </div>
-                                                {enabledByScopes.length > 0 && (
-                                                  <div className="ml-4 text-xs text-blue-500 font-mono">
-                                                    {enabledByScopes
-                                                      .slice(0, 2)
-                                                      .map((scope) => (
-                                                        <div
-                                                          key={scope}
-                                                          className="flex items-center gap-1 group cursor-pointer hover:bg-blue-50 p-1 rounded"
-                                                          onClick={() =>
-                                                            copyToClipboard(
-                                                              scope
-                                                            )
-                                                          }
-                                                          title="Click to copy scope URI">
-                                                          <span className="truncate">
-                                                            └ {scope}
-                                                          </span>
-                                                          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-400">
-                                                            📋
-                                                          </span>
-                                                        </div>
-                                                      ))}
-                                                    {enabledByScopes.length >
-                                                      2 && (
-                                                      <div className="text-blue-400 italic">
-                                                        └ ... and{" "}
-                                                        {enabledByScopes.length -
-                                                          2}{" "}
-                                                        more
-                                                      </div>
-                                                    )}
-                                                  </div>
-                                                )}
-                                              </div>
-                                            );
-                                          })}
-                                        {shared.length > 3 && (
-                                          <div className="text-blue-500 italic">
-                                            ... and {shared.length - 3} more
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  )}
+                                    )}
+                                  </div>
                                 </div>
                               </details>
                             </div>
@@ -1033,55 +959,73 @@ const CredentialComparison = () => {
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                         {getAllIntegrations().map((integration) => {
-                          const isAvailable = availableIntegrations.includes(integration);
-                          const requiredScopes = Object.entries(scopeToIntegration)
-                            .filter(([scope, integrations]) => integrations.includes(integration))
+                          const isAvailable =
+                            availableIntegrations.includes(integration);
+                          const requiredScopes = Object.entries(
+                            scopeToIntegration
+                          )
+                            .filter(([scope, integrations]) =>
+                              integrations.includes(integration)
+                            )
                             .map(([scope]) => scope);
-                          const missingScopes = requiredScopes.filter(scope => 
-                            !credential.availableScopes.includes(scope)
+                          const missingScopes = requiredScopes.filter(
+                            (scope) =>
+                              !credential.availableScopes.includes(scope)
                           );
-                          
+
                           return (
                             <div
                               key={integration}
                               className={`p-3 rounded-lg border flex items-start ${
-                                isAvailable 
-                                  ? 'bg-green-50 border-green-200' 
-                                  : 'bg-yellow-50 border-yellow-200'
+                                isAvailable
+                                  ? "bg-green-50 border-green-200"
+                                  : "bg-yellow-50 border-yellow-200"
                               }`}>
                               {isAvailable ? (
                                 <CheckCircle className="w-4 h-4 text-green-600 mr-2 mt-0.5 flex-shrink-0" />
                               ) : (
-                                <div className="w-4 h-4 text-yellow-600 mr-2 mt-0.5 flex-shrink-0" title={`Missing ${missingScopes.length} required scope(s)`}>
+                                <div
+                                  className="w-4 h-4 text-yellow-600 mr-2 mt-0.5 flex-shrink-0"
+                                  title={`Missing ${missingScopes.length} required scope(s)`}>
                                   ⚠️
                                 </div>
                               )}
                               <div className="flex-1 min-w-0">
-                                <span className={`text-sm block ${
-                                  isAvailable ? 'text-green-800' : 'text-yellow-800'
-                                }`}>
-                                  {integrationToPromptMapping[integration] || integration}
+                                <span
+                                  className={`text-sm block ${
+                                    isAvailable
+                                      ? "text-green-800"
+                                      : "text-yellow-800"
+                                  }`}>
+                                  {integrationToPromptMapping[integration] ||
+                                    integration}
                                 </span>
                                 {!isAvailable && missingScopes.length > 0 && (
                                   <div className="text-xs text-yellow-600 mt-1">
-                                    Missing {missingScopes.length} scope{missingScopes.length > 1 ? 's' : ''}
+                                    Missing {missingScopes.length} scope
+                                    {missingScopes.length > 1 ? "s" : ""}
                                     <details className="mt-1">
                                       <summary className="cursor-pointer hover:underline">
                                         View required scopes
                                       </summary>
                                       <div className="mt-1 space-y-1 font-mono text-xs">
-                                        {missingScopes.slice(0, 2).map(scope => (
-                                          <div 
-                                            key={scope}
-                                            className="cursor-pointer hover:bg-yellow-100 p-1 rounded truncate"
-                                            onClick={() => copyToClipboard(scope)}
-                                            title="Click to copy scope URI">
-                                            📋 {scope}
-                                          </div>
-                                        ))}
+                                        {missingScopes
+                                          .slice(0, 2)
+                                          .map((scope) => (
+                                            <div
+                                              key={scope}
+                                              className="cursor-pointer hover:bg-yellow-100 p-1 rounded truncate"
+                                              onClick={() =>
+                                                copyToClipboard(scope)
+                                              }
+                                              title="Click to copy scope URI">
+                                              📋 {scope}
+                                            </div>
+                                          ))}
                                         {missingScopes.length > 2 && (
                                           <div className="text-yellow-500 italic">
-                                            ... and {missingScopes.length - 2} more
+                                            ... and {missingScopes.length - 2}{" "}
+                                            more
                                           </div>
                                         )}
                                       </div>
