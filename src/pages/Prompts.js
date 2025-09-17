@@ -11,10 +11,6 @@ import {
   Sun,
   Settings,
   User,
-  Download,
-  Upload,
-  Save,
-  FileText,
   Key,
 } from "lucide-react";
 import AccessTokenPanel from "../components/AccessTokenPanel";
@@ -51,7 +47,6 @@ const PayPalPromptLibrary = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showCombinedBuilder, setShowCombinedBuilder] = useState(false);
-  const [showTemplateBuilder, setShowTemplateBuilder] = useState(false);
   // Removed code preview functionality
 
   // Dynamic variables - PayPal API Parameters
@@ -120,16 +115,6 @@ const PayPalPromptLibrary = () => {
     shippingPreferences: false, // GET_FROM_FILE, NO_SHIPPING, SET_PROVIDED_ADDRESS
     paymentDataCapture: false, // Enhanced payment data capture and processing
     crossBorderMessaging: false, // Pay Later messaging for cross-border transactions
-  });
-
-  // Custom templates
-  const [customTemplates, setCustomTemplates] = useState([]);
-  const [newTemplate, setNewTemplate] = useState({
-    name: "",
-    description: "",
-    prompt: "",
-    category: "Custom",
-    platforms: ["Web"],
   });
 
   // Access token management
@@ -534,20 +519,6 @@ Ensure all advanced features are implemented with proper error handling, logging
                 Combined Builder
               </button>
               <button
-                onClick={() => setShowTemplateBuilder(!showTemplateBuilder)}
-                className={`px-4 py-2 rounded-lg ${
-                  showTemplateBuilder
-                    ? darkMode
-                      ? "bg-purple-700 hover:bg-purple-600 text-purple-100"
-                      : "bg-purple-600 hover:bg-purple-700 text-white"
-                    : darkMode
-                    ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-600"
-                } transition-colors font-medium`}>
-                <FileText className="w-4 h-4 mr-2 inline" />
-                Templates
-              </button>
-              <button
                 onClick={generateAccessToken}
                 disabled={
                   isGeneratingToken ||
@@ -649,247 +620,6 @@ Ensure all advanced features are implemented with proper error handling, logging
               These variables and features will be automatically integrated into
               all copied prompts with detailed implementation guidance.
             </p>
-          </div>
-        </div>
-      )}
-
-      {/* Template Builder Panel */}
-      {showTemplateBuilder && (
-        <div
-          className={`${themeClasses.cardBg} ${themeClasses.border} border-b transition-colors duration-200`}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center">
-                <FileText className={`w-5 h-5 ${themeClasses.text} mr-2`} />
-                <h3 className={`text-lg font-semibold ${themeClasses.text}`}>
-                  Custom Template Builder
-                </h3>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => {
-                    const dataStr = JSON.stringify(customTemplates, null, 2);
-                    const dataBlob = new Blob([dataStr], {
-                      type: "application/json",
-                    });
-                    const url = URL.createObjectURL(dataBlob);
-                    const link = document.createElement("a");
-                    link.href = url;
-                    link.download = "paypal-prompt-templates.json";
-                    link.click();
-                  }}
-                  className={`px-3 py-2 rounded-lg ${
-                    darkMode
-                      ? "bg-green-700 hover:bg-green-600 text-green-100"
-                      : "bg-green-600 hover:bg-green-700 text-white"
-                  } transition-colors text-sm`}>
-                  <Download className="w-4 h-4 mr-1 inline" />
-                  Export
-                </button>
-                <label
-                  className={`px-3 py-2 rounded-lg ${
-                    darkMode
-                      ? "bg-blue-700 hover:bg-blue-600 text-blue-100"
-                      : "bg-blue-600 hover:bg-blue-700 text-white"
-                  } transition-colors text-sm cursor-pointer`}>
-                  <Upload className="w-4 h-4 mr-1 inline" />
-                  Import
-                  <input
-                    type="file"
-                    accept=".json"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                          try {
-                            const imported = JSON.parse(event.target.result);
-                            setCustomTemplates([
-                              ...customTemplates,
-                              ...imported,
-                            ]);
-                          } catch (err) {
-                            alert("Invalid JSON file");
-                          }
-                        };
-                        reader.readAsText(file);
-                      }
-                    }}
-                  />
-                </label>
-              </div>
-            </div>
-
-            <p className={`text-sm ${themeClasses.textSecondary} mb-6`}>
-              Create custom prompt templates for your specific use cases.
-              Templates can include all dynamic variables and advanced features.
-            </p>
-
-            {/* New Template Form */}
-            <div
-              className={`${themeClasses.border} border rounded-lg p-6 mb-6`}>
-              <h4 className={`font-medium ${themeClasses.text} mb-4`}>
-                Create New Template
-              </h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label
-                    className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
-                    Template Name
-                  </label>
-                  <input
-                    type="text"
-                    value={newTemplate.name}
-                    onChange={(e) =>
-                      setNewTemplate({ ...newTemplate, name: e.target.value })
-                    }
-                    className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                    placeholder="e.g., E-commerce Checkout"
-                  />
-                </div>
-                <div>
-                  <label
-                    className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
-                    Category
-                  </label>
-                  <select
-                    value={newTemplate.category}
-                    onChange={(e) =>
-                      setNewTemplate({
-                        ...newTemplate,
-                        category: e.target.value,
-                      })
-                    }
-                    className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}>
-                    <option value="Custom">Custom</option>
-                    <option value="E-commerce">E-commerce</option>
-                    <option value="Subscription">Subscription</option>
-                    <option value="Marketplace">Marketplace</option>
-                    <option value="Mobile">Mobile</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <label
-                  className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
-                  Description
-                </label>
-                <input
-                  type="text"
-                  value={newTemplate.description}
-                  onChange={(e) =>
-                    setNewTemplate({
-                      ...newTemplate,
-                      description: e.target.value,
-                    })
-                  }
-                  className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500`}
-                  placeholder="Brief description of what this template does"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label
-                  className={`block text-sm font-medium ${themeClasses.text} mb-2`}>
-                  Prompt Template
-                </label>
-                <textarea
-                  value={newTemplate.prompt}
-                  onChange={(e) =>
-                    setNewTemplate({ ...newTemplate, prompt: e.target.value })
-                  }
-                  className={`w-full px-3 py-2 rounded-lg ${themeClasses.input} focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-40`}
-                  placeholder="Enter your prompt template here. Use {{VARIABLE_NAME}} for dynamic replacements..."
-                />
-              </div>
-
-              <button
-                onClick={() => {
-                  if (newTemplate.name && newTemplate.prompt) {
-                    setCustomTemplates([
-                      ...customTemplates,
-                      { ...newTemplate, id: Date.now() },
-                    ]);
-                    setNewTemplate({
-                      name: "",
-                      description: "",
-                      prompt: "",
-                      category: "Custom",
-                      platforms: ["Web"],
-                    });
-                  }
-                }}
-                className={`px-4 py-2 rounded-lg ${
-                  newTemplate.name && newTemplate.prompt
-                    ? "bg-blue-600 hover:bg-blue-700 text-white"
-                    : "bg-gray-400 text-gray-600 cursor-not-allowed"
-                } transition-colors`}
-                disabled={!newTemplate.name || !newTemplate.prompt}>
-                <Save className="w-4 h-4 mr-2 inline" />
-                Save Template
-              </button>
-            </div>
-
-            {/* Existing Templates */}
-            {customTemplates.length > 0 && (
-              <div>
-                <h4 className={`font-medium ${themeClasses.text} mb-4`}>
-                  Your Custom Templates
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {customTemplates.map((template) => (
-                    <div
-                      key={template.id}
-                      className={`${themeClasses.border} border rounded-lg p-4`}>
-                      <div className="flex items-start justify-between mb-2">
-                        <h5 className={`font-medium ${themeClasses.text}`}>
-                          {template.name}
-                        </h5>
-                        <button
-                          onClick={() =>
-                            setCustomTemplates(
-                              customTemplates.filter(
-                                (t) => t.id !== template.id
-                              )
-                            )
-                          }
-                          className={`text-red-500 hover:text-red-700 text-sm`}>
-                          Delete
-                        </button>
-                      </div>
-                      <p
-                        className={`text-sm ${themeClasses.textSecondary} mb-3`}>
-                        {template.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span
-                          className={`text-xs px-2 py-1 rounded ${
-                            darkMode
-                              ? "bg-purple-900 text-purple-200"
-                              : "bg-purple-100 text-purple-800"
-                          }`}>
-                          {template.category}
-                        </span>
-                        <button
-                          onClick={() =>
-                            copyToClipboard(
-                              template.prompt,
-                              `template-${template.id}`
-                            )
-                          }
-                          className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors">
-                          {copiedPrompt === `template-${template.id}`
-                            ? "Copied!"
-                            : "Copy"}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}
