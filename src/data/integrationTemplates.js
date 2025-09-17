@@ -148,4 +148,8 @@ export const integrationDocLinks = {
     "https://developer.paypal.com/docs/checkout/advanced/integrate/",
   applePay: "https://developer.paypal.com/docs/checkout/apm/apple-pay/",
   googlePay: "https://developer.paypal.com/docs/checkout/apm/google-pay/",
+  venmo: "https://developer.paypal.com/docs/checkout/pay-with-venmo/",
+  alternativePaymentMethods: "https://developer.paypal.com/docs/checkout/apm/",
+  subscriptions: "https://developer.paypal.com/docs/subscriptions/",
+  vaulting: "https://developer.paypal.com/docs/checkout/save-payment-methods/",
 };

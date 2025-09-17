@@ -54,34 +54,72 @@ const PayPalPromptLibrary = () => {
   const [showTemplateBuilder, setShowTemplateBuilder] = useState(false);
   // Removed code preview functionality
 
-  // Dynamic variables
+  // Dynamic variables - PayPal API Parameters
   const [dynamicVars, setDynamicVars] = useState({
-    buyerCountry: "US",
-    currency: "USD",
+    // Core PayPal Configuration
+    environment: "sandbox", // sandbox or live
     clientId: "YOUR_CLIENT_ID",
     clientSecret: "YOUR_CLIENT_SECRET",
+    merchantId: "YOUR_MERCHANT_ID",
+    webhookId: "YOUR_WEBHOOK_ID",
+
+    // Order Configuration
+    intent: "CAPTURE", // CAPTURE or AUTHORIZE
+    paymentSource: "paypal", // paypal, card, apple_pay, google_pay, venmo
+    currency: "USD",
+    buyerCountry: "US",
+
+    // Business Details
     companyName: "Your Company",
-    productType: "Digital Product",
-    websiteUrl: "https://yourwebsite.com",
-    supportEmail: "support@yourcompany.com",
+    brandName: "Your Brand",
+    softDescriptor: "YOUR_STORE",
+    merchantCategory: "DIGITAL_GOODS", // DIGITAL_GOODS, PHYSICAL_GOODS, SERVICES
+
+    // Technical Stack
     frontendTech: "React",
     backendTech: "Node.js",
+
+    // URLs
+    returnUrl: "https://yourwebsite.com/success",
+    cancelUrl: "https://yourwebsite.com/cancel",
+    webhookUrl: "https://yourwebsite.com/webhooks/paypal",
+
+    // Purchase Unit Configuration
+    reference_id: "default",
+    description: "Purchase from {{COMPANY_NAME}}",
+    custom_id: "custom_transaction_id",
+    invoice_id: "INV-{{TIMESTAMP}}",
+
+    // Amount Breakdown Parameters
+    itemTotal: "0.00",
+    shipping: "0.00",
+    handling: "0.00",
+    taxTotal: "0.00",
+    insurance: "0.00",
+    shippingDiscount: "0.00",
+    discount: "0.00",
   });
 
-  // Advanced feature toggles
+  // Advanced PayPal Features - Using Official PayPal Terminology
   const [advancedFeatures, setAdvancedFeatures] = useState({
-    threeDSecure: false,
-    lineItems: false,
-    taxBreakdown: false,
-    shippingCalculation: false,
-    discountCodes: false,
-    recurringBilling: false,
-    webhookVerification: false,
-    fraudProtection: false,
-    multiCurrency: false,
-    guestCheckout: false,
-    savePaymentMethods: false,
-    addressValidation: false,
+    // Core PayPal Features (matching AdvancedFeatures.js component)
+    vaulting: false, // PayPal's official term for saving payment methods
+    subscriptions: false, // PayPal Subscriptions API (not recurring billing)
+    threeDSecure: false, // 3D Secure authentication via SCA_ALWAYS
+    alternativePaymentMethods: false, // iDEAL, Bancontact, SEPA, Sofort, etc.
+    smartPaymentButtons: false, // Dynamic payment button rendering
+    webhookVerification: false, // PayPal webhook event handling with verification
+    payPalCheckoutExperience: false, // Custom PayPal checkout experience
+    venmoIntegration: false, // Venmo payment source
+    applePayIntegration: false, // Apple Pay payment source integration
+    googlePayIntegration: false, // Google Pay payment source integration
+    fraudProtection: false, // PayPal's fraud protection and risk management
+    fraudNet: false, // PayPal FraudNet real-time risk data collection
+    lineItemDetails: false, // Detailed purchase_units.items array
+    amountBreakdown: false, // Detailed amount breakdown with taxes, shipping
+    shippingPreferences: false, // GET_FROM_FILE, NO_SHIPPING, SET_PROVIDED_ADDRESS
+    paymentDataCapture: false, // Enhanced payment data capture and processing
+    crossBorderMessaging: false, // Pay Later messaging for cross-border transactions
   });
 
   // Custom templates
@@ -138,9 +176,24 @@ ${selectedIntegrations.map((key) => integrationSections[key]).join("\n\n")}
 
 For detailed implementation guidance, refer to the official PayPal documentation:
 
+### Core Integration Documentation:
 ${selectedIntegrations
   .map((key) => `- **${methodNames[key]}**: ${integrationDocLinks[key]}`)
   .join("\n")}
+
+### Essential PayPal API Documentation:
+- **Orders API v2**: https://developer.paypal.com/docs/api/orders/v2/
+- **Payment Sources**: https://developer.paypal.com/docs/checkout/payment-sources/
+- **Webhooks API**: https://developer.paypal.com/docs/api/webhooks/v1/
+- **JavaScript SDK**: https://developer.paypal.com/sdk/js/reference/
+- **Authentication**: https://developer.paypal.com/api/rest/authentication/
+- **Error Handling**: https://developer.paypal.com/api/rest/responses/
+
+### PayPal Developer Resources:
+- **Developer Dashboard**: https://developer.paypal.com/developer/applications/
+- **Sandbox Testing**: https://developer.paypal.com/docs/api-basics/sandbox/
+- **Postman Collections**: https://developer.paypal.com/docs/api-basics/postman/
+- **Code Samples**: https://github.com/paypal-examples
 
 ## Unified Implementation Requirements
 
@@ -360,6 +413,40 @@ ${enabledFeatures
 ${enabledFeatures
   .map((feature) => featureImplementations[feature] || "")
   .join("")}
+
+### Advanced Features Documentation:
+${enabledFeatures
+  .filter(
+    (feature) =>
+      feature === "fraudNet" ||
+      feature === "crossBorderMessaging" ||
+      feature === "vaulting" ||
+      feature === "subscriptions" ||
+      feature === "threeDSecure" ||
+      feature === "alternativePaymentMethods" ||
+      feature === "webhookVerification"
+  )
+  .map((feature) => {
+    const docLinks = {
+      fraudNet:
+        "- **FraudNet Integration**: https://developer.paypal.com/limited-release/fraudnet/integrate",
+      crossBorderMessaging:
+        "- **Cross-Border Pay Later Messaging**: https://developer.paypal.com/limited-release/sdk-pay-later-messaging-cross-border/",
+      vaulting:
+        "- **Vaulting API**: https://developer.paypal.com/docs/checkout/save-payment-methods/",
+      subscriptions:
+        "- **Subscriptions API**: https://developer.paypal.com/docs/subscriptions/",
+      threeDSecure:
+        "- **3D Secure**: https://developer.paypal.com/docs/checkout/advanced/customize/3d-secure/",
+      alternativePaymentMethods:
+        "- **Alternative Payment Methods**: https://developer.paypal.com/docs/checkout/apm/",
+      webhookVerification:
+        "- **Webhooks**: https://developer.paypal.com/docs/api/webhooks/v1/",
+    };
+    return docLinks[feature];
+  })
+  .filter(Boolean)
+  .join("\n")}
 
 Ensure all advanced features are implemented with proper error handling, logging, and compliance with {{BUYER_COUNTRY}} regulations.`;
 
