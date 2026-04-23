@@ -6,6 +6,7 @@ import Emails from "./pages/Email";
 import Prompts from "./pages/Prompts";
 import Data from "./pages/Data";
 import Comparer from "./pages/CredentialComparison";
+import Canada from "./pages/Canada";
 
 const App = () => {
   return (
@@ -18,6 +19,7 @@ const App = () => {
         <Route path="/prompts" element={<Prompts />} />
         <Route path="/emails" element={<Emails />} />
         <Route path="/file-compare" element={<Filecomp />} />
+        <Route path="/canada" element={<Canada />} />
       </Routes>
     </>
   );

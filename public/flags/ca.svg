@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="32" viewBox="0 0 63 33" preserveAspectRatio="none">
+  <rect width="63" height="33" fill="#ff0000"/>
+  <rect x="21" width="21" height="33" fill="#ffffff"/>
+  <!-- simple stylized maple leaf -->
+  <g transform="translate(31.5,16.5) scale(0.6)">
+    <path d="M0,-10 L2,-4 L8,-5 L4,-1 L6,5 L0,2 L-6,5 L-4,-1 L-8,-5 L-2,-4 Z" fill="#ff0000"/>
+  </g>
+</svg>

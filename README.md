@@ -90,6 +90,24 @@ Create a `.env` file in the root directory for any environment-specific configur
 REACT_APP_API_BASE_URL=your_api_base_url
 ```
 
+### Supabase (optional)
+
+If you want to use Supabase for remote persistence, install the client and set credentials:
+
+```bash
+npm install @supabase/supabase-js
+```
+
+Create a `.env.local` (not committed) with:
+
+```env
+REACT_APP_SUPABASE_URL=https://your-project.supabase.co
+REACT_APP_SUPABASE_KEY=your_anon_or_service_key
+REACT_APP_PIN=2580
+```
+
+The repo includes `.env.example` as a template.
+
 ## 📋 Available Scripts
 
 - `npm start`: Runs the app in development mode
