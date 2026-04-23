@@ -13,7 +13,7 @@ if (!supabase) {
   // helpful hint during development when env vars are missing
   // eslint-disable-next-line no-console
   console.warn(
-    "Supabase not configured — set REACT_APP_PP_SUPABASE_URL and REACT_APP_PP_SUPABASE_KEY in .env.local"
+    "Supabase not configured — set REACT_APP_PP_SUPABASE_URL and REACT_APP_PP_SUPABASE_KEY in .env.local",
   );
 }
 
