@@ -12,7 +12,6 @@ const Overview = () => {
     links,
     addLink,
     removeLink,
-    lastSyncedAt,
   } = useTracker();
 
   // formatters

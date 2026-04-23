@@ -30,9 +30,7 @@ const TABS = [
 
 const MoveTracker = () => {
   const [active, setActive] = React.useState("overview");
-  const { fxRate, setFxRate, generalNotes, setGeneralNotes, links } =
-    useTracker();
-  const { saveRemote, isSaving, lastSyncedAt, loadRemote } = useTracker();
+    const { fxRate, setFxRate, saveRemote, isSaving, loadRemote } = useTracker();
 
   return (
     <div>

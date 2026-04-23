@@ -1210,12 +1210,19 @@ export const TrackerProvider = ({ children }) => {
         housing,
         updated_at: new Date().toISOString(),
       };
-      const { error } = await supabase.from("tracker_state").upsert(payload);
+      const res = await supabase.from("tracker_state").upsert(payload).select();
       setIsSaving(false);
-      if (!error) setLastSyncedAt(new Date().toISOString());
-      return !error;
+      if (res.error) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to save remote state:", res.error);
+        return false;
+      }
+      setLastSyncedAt(new Date().toISOString());
+      return true;
     } catch (e) {
       setIsSaving(false);
+      // eslint-disable-next-line no-console
+      console.error("saveRemote exception:", e);
       return false;
     }
   }, [fxRate, generalNotes, links, tasks, costRows, pensions, jobs, housing]);
@@ -1223,12 +1230,17 @@ export const TrackerProvider = ({ children }) => {
   const loadRemote = useCallback(async () => {
     if (!supabase) return false;
     try {
-      const { data, error } = await supabase
+      const res = await supabase
         .from("tracker_state")
         .select("*")
         .eq("id", "default")
         .single();
-      if (error || !data) return false;
+      if (res.error || !res.data) {
+        // eslint-disable-next-line no-console
+        console.warn("No remote state found or failed to load:", res.error);
+        return false;
+      }
+      const data = res.data;
       // merge remote state into local
       if (data.fxRate !== undefined) setFxRate(data.fxRate);
       if (data.generalNotes !== undefined) {

@@ -101,12 +101,16 @@ npm install @supabase/supabase-js
 Create a `.env.local` (not committed) with:
 
 ```env
-REACT_APP_SUPABASE_URL=https://your-project.supabase.co
-REACT_APP_SUPABASE_KEY=your_anon_or_service_key
+REACT_APP_PP_SUPABASE_URL=https://your-project.supabase.co
+REACT_APP_PP_SUPABASE_KEY=your_anon_or_service_key
 REACT_APP_PIN=2580
 ```
 
 The repo includes `.env.example` as a template.
+
+### Database setup for Supabase
+
+Create a table named `tracker_state` (you can run the SQL in `db/create_tracker_state.sql` from the project root in the Supabase SQL editor). The table should include an `id` primary key and JSONB columns for state. Example SQL is provided in `db/create_tracker_state.sql`.
 
 ## 📋 Available Scripts
 

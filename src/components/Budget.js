@@ -50,10 +50,10 @@ const Budget = () => {
 
   useEffect(() => {
     updateBudgetSalary("t", Number(tSalK) || 0);
-  }, [tSalK]);
+  }, [tSalK, updateBudgetSalary]);
   useEffect(() => {
     updateBudgetSalary("o", Number(oSalK) || 0);
-  }, [oSalK]);
+  }, [oSalK, updateBudgetSalary]);
 
   const totalFixed = (budgetRows.fixed || []).reduce(
     (s, r) => s + (r.amount || 0),
