@@ -423,6 +423,79 @@ select {
   }
 }
 
+/* Pin overlay improvements for better mobile layout */
+#pin-overlay {
+  padding: 20px;
+  box-sizing: border-box;
+}
+#pin-overlay > * {
+  max-width: 520px;
+  width: 100%;
+  box-sizing: border-box;
+}
+#pin-overlay h2 {
+  font-size: 1.4rem;
+  text-align: center;
+}
+#pin-dots {
+  justify-content: center;
+}
+#pin-pad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(56px, 1fr));
+  gap: 8px;
+  width: 100%;
+  max-width: 420px;
+  margin: 0.5rem auto 0;
+}
+.pin-btn {
+  width: 100%;
+  height: 64px;
+  font-size: 1.15rem;
+}
+
+@media (max-width: 480px) {
+  #pin-overlay h2 {
+    font-size: 1.15rem;
+  }
+  #pin-pad {
+    grid-template-columns: repeat(3, minmax(48px, 1fr));
+    gap: 6px;
+  }
+  .pin-btn {
+    height: 52px;
+    font-size: 1rem;
+  }
+}
+
+/* Header tweaks for mobile to avoid overflow and improve spacing */
+@media (max-width: 768px) {
+  header {
+    padding: 12px;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+  }
+  header h1 {
+    font-size: 1.15rem;
+    text-align: center;
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+  .fx-bar {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .flag {
+    width: 20px;
+  }
+  nav {
+    padding: 0 8px;
+  }
+}
+
 /* Overview summary cards and progress */
 .summary-grid {
   display: grid;
@@ -807,12 +880,29 @@ input[type="range"]::-moz-range-thumb {
   }
   .table-wrap tbody tr td {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
+    align-items: center;
     padding: 0.5rem 0.75rem;
     border-top: none;
   }
   .table-wrap tbody tr td:first-child {
     font-weight: 600;
+  }
+
+  /* show the column label on the left using data-label attribute */
+  .table-wrap tbody tr td::before {
+    content: attr(data-label) ": ";
+    flex: 0 0 36%;
+    color: var(--muted);
+    font-weight: 600;
+    display: inline-block;
+    padding-right: 8px;
+    box-sizing: border-box;
+    white-space: normal;
+  }
+  .table-wrap tbody tr td * {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   /* Prevent small-device horizontal gaps caused by leftover overflow */
