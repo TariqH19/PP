@@ -10,6 +10,7 @@ const JobsTracker = React.lazy(() => import("./JobsTracker"));
 const Housing = React.lazy(() => import("./Housing"));
 const Overview = React.lazy(() => import("./Overview"));
 const Budget = React.lazy(() => import("./Budget"));
+const Healthcare = React.lazy(() => import("./Healthcare"));
 
 const TABS = [
   "overview",
@@ -111,20 +112,23 @@ const MoveTracker = () => {
 
       <main>
         {/* Render tab content components for task and cost sections */}
-        {[
-          "before",
-          "olivia",
-          "arrival",
-          "finances",
-          "healthcare",
-          "taxes",
-        ].includes(active) && (
+        {["before", "olivia", "arrival", "finances", "taxes"].includes(
+          active,
+        ) && (
           <div style={{ paddingTop: 8 }}>
             {/* TaskTable is lazy — import locally to avoid extra bundle noise later */}
             <React.Suspense fallback={<div>Loading...</div>}>
               <TaskTable section={active} />
             </React.Suspense>
             {/* defaults are present by default */}
+          </div>
+        )}
+
+        {active === "healthcare" && (
+          <div style={{ paddingTop: 8 }}>
+            <React.Suspense fallback={<div>Loading healthcare...</div>}>
+              <Healthcare />
+            </React.Suspense>
           </div>
         )}
 
