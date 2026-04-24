@@ -850,3 +850,26 @@ input[type="range"]::-moz-range-thumb {
     overflow-x: visible;
   }
 }
+
+/* Prevent page-level horizontal overflow on small devices while preserving
+   element-level scrolling (tables remain scrollable). Also neutralise any
+   negative margins that can cause body overflow. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.table-wrap {
+  -webkit-overflow-scrolling: touch;
+  overflow-x: auto;
+}
+
+@media (max-width: 900px) {
+  /* Some cards add negative horizontal margins for visual effect on wide
+     layouts; remove those on smaller screens to avoid creating extra width */
+  .retire-row:last-child {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
