@@ -13,6 +13,12 @@ export const useTracker = () => useContext(TrackerContext);
 
 const STORAGE_KEY = "pp_tracker_state_v1";
 
+const normalizeLinkUrl = (url = "") => {
+  const trimmed = String(url).trim();
+  if (!trimmed) return "";
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+};
+
 export const TrackerProvider = ({ children }) => {
   const [fxRate, setFxRate] = useState(1.6);
   const [generalNotes, setGeneralNotes] = useState([]);
@@ -1146,6 +1152,7 @@ export const TrackerProvider = ({ children }) => {
   const [housing, setHousing] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSyncedAt, setLastSyncedAt] = useState(null);
+  const [syncMessage, setSyncMessage] = useState("");
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -1173,6 +1180,8 @@ export const TrackerProvider = ({ children }) => {
         if (s.pensions) setPensions(s.pensions);
         if (s.jobs) setJobs(s.jobs);
         if (s.housing) setHousing(s.housing);
+        if (s.budgetRows) setBudgetRows(s.budgetRows);
+        if (s.budgetSalaries) setBudgetSalaries(s.budgetSalaries);
       }
     } catch (e) {
       // ignore
@@ -1189,14 +1198,31 @@ export const TrackerProvider = ({ children }) => {
       pensions,
       jobs,
       housing,
+      budgetRows,
+      budgetSalaries,
       updatedAt: new Date().toISOString(),
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-  }, [fxRate, generalNotes, links, tasks, costRows, pensions, jobs, housing]);
+  }, [
+    fxRate,
+    generalNotes,
+    links,
+    tasks,
+    costRows,
+    pensions,
+    jobs,
+    housing,
+    budgetRows,
+    budgetSalaries,
+  ]);
 
   const saveRemote = useCallback(async () => {
-    if (!supabase) return false;
+    if (!supabase) {
+      setSyncMessage("Supabase is not configured in .env.local");
+      return false;
+    }
     setIsSaving(true);
+    setSyncMessage("Syncing to database...");
     try {
       const payload = {
         id: "default",
@@ -1208,6 +1234,8 @@ export const TrackerProvider = ({ children }) => {
         pensions,
         jobs,
         housing,
+        budgetRows,
+        budgetSalaries,
         updated_at: new Date().toISOString(),
       };
       const res = await supabase.from("tracker_state").upsert(payload).select();
@@ -1215,21 +1243,40 @@ export const TrackerProvider = ({ children }) => {
       if (res.error) {
         // eslint-disable-next-line no-console
         console.error("Failed to save remote state:", res.error);
+        setSyncMessage(`Sync failed: ${res.error.message || "unknown error"}`);
         return false;
       }
-      setLastSyncedAt(new Date().toISOString());
+      const now = new Date().toISOString();
+      setLastSyncedAt(now);
+      setSyncMessage("Synced to database");
       return true;
     } catch (e) {
       setIsSaving(false);
       // eslint-disable-next-line no-console
       console.error("saveRemote exception:", e);
+      setSyncMessage(`Sync failed: ${e?.message || "unexpected error"}`);
       return false;
     }
-  }, [fxRate, generalNotes, links, tasks, costRows, pensions, jobs, housing]);
+  }, [
+    fxRate,
+    generalNotes,
+    links,
+    tasks,
+    costRows,
+    pensions,
+    jobs,
+    housing,
+    budgetRows,
+    budgetSalaries,
+  ]);
 
   const loadRemote = useCallback(async () => {
-    if (!supabase) return false;
+    if (!supabase) {
+      setSyncMessage("Supabase is not configured in .env.local");
+      return false;
+    }
     try {
+      setSyncMessage("Loading from database...");
       const res = await supabase
         .from("tracker_state")
         .select("*")
@@ -1238,31 +1285,43 @@ export const TrackerProvider = ({ children }) => {
       if (res.error || !res.data) {
         // eslint-disable-next-line no-console
         console.warn("No remote state found or failed to load:", res.error);
+        setSyncMessage(`Load failed: ${res.error?.message || "no data found"}`);
         return false;
       }
       const data = res.data;
+      const fxRateValue = data.fxRate ?? data.fxrate;
+      const generalNotesValue = data.generalNotes ?? data.generalnotes;
+      const costRowsValue = data.costRows ?? data.costrows;
+      const budgetRowsValue = data.budgetRows ?? data.budgetrows;
+      const budgetSalariesValue = data.budgetSalaries ?? data.budgetsalaries;
+
       // merge remote state into local
-      if (data.fxRate !== undefined) setFxRate(data.fxRate);
-      if (data.generalNotes !== undefined) {
-        if (typeof data.generalNotes === "string")
+      if (fxRateValue !== undefined) setFxRate(fxRateValue);
+      if (generalNotesValue !== undefined) {
+        if (typeof generalNotesValue === "string")
           setGeneralNotes([
             {
-              text: data.generalNotes,
+              text: generalNotesValue,
               author: "Tariq",
               date: new Date().toISOString(),
             },
           ]);
-        else setGeneralNotes(data.generalNotes);
+        else setGeneralNotes(generalNotesValue);
       }
       if (data.links !== undefined) setLinks(data.links);
       if (data.tasks !== undefined) setTasks(data.tasks);
-      if (data.costRows !== undefined) setCostRows(data.costRows);
+      if (costRowsValue !== undefined) setCostRows(costRowsValue);
       if (data.pensions !== undefined) setPensions(data.pensions);
       if (data.jobs !== undefined) setJobs(data.jobs);
       if (data.housing !== undefined) setHousing(data.housing);
+      if (budgetRowsValue !== undefined) setBudgetRows(budgetRowsValue);
+      if (budgetSalariesValue !== undefined)
+        setBudgetSalaries(budgetSalariesValue);
       setLastSyncedAt(new Date().toISOString());
+      setSyncMessage("Loaded from database");
       return true;
     } catch (e) {
+      setSyncMessage(`Load failed: ${e?.message || "unexpected error"}`);
       return false;
     }
   }, []);
@@ -1270,7 +1329,19 @@ export const TrackerProvider = ({ children }) => {
   // Autosave local whenever key pieces update
   useEffect(() => {
     saveLocal();
-  }, [fxRate, generalNotes, links, saveLocal]);
+  }, [
+    fxRate,
+    generalNotes,
+    links,
+    tasks,
+    costRows,
+    pensions,
+    jobs,
+    housing,
+    budgetRows,
+    budgetSalaries,
+    saveLocal,
+  ]);
 
   // Attempt to load remote state once on mount if supabase configured
   useEffect(() => {
@@ -1293,6 +1364,7 @@ export const TrackerProvider = ({ children }) => {
     saveRemote,
     isSaving,
     lastSyncedAt,
+    syncMessage,
     loadRemote,
     // task / cost API
     tasks,
@@ -1406,11 +1478,24 @@ export const TrackerProvider = ({ children }) => {
       }));
     },
     // links API
-    addLink: (link) => setLinks((l) => [...l, link]),
+    addLink: (link) =>
+      setLinks((l) => [
+        ...l,
+        {
+          ...link,
+          url: normalizeLinkUrl(link?.url),
+        },
+      ]),
     updateLink: (idx, patch) =>
       setLinks((l) => {
         const a = [...l];
-        a[idx] = { ...a[idx], ...patch };
+        a[idx] = {
+          ...a[idx],
+          ...patch,
+          ...(patch?.url !== undefined
+            ? { url: normalizeLinkUrl(patch.url) }
+            : {}),
+        };
         return a;
       }),
     removeLink: (idx) => setLinks((l) => l.filter((_, i) => i !== idx)),

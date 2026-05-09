@@ -31,7 +31,8 @@ const TABS = [
 
 const MoveTracker = () => {
   const [active, setActive] = React.useState("overview");
-  const { fxRate, setFxRate, saveRemote, isSaving, loadRemote } = useTracker();
+  const { fxRate, setFxRate, saveRemote, isSaving, loadRemote, syncMessage } =
+    useTracker();
 
   return (
     <div>
@@ -56,8 +57,9 @@ const MoveTracker = () => {
           </div>
           <div
             id="sync-status"
-            style={{ fontSize: "0.65rem", marginTop: 4, height: 14 }}
-          />
+            style={{ fontSize: "0.65rem", marginTop: 4, height: 14 }}>
+            {syncMessage}
+          </div>
         </div>
 
         <div className="fx-bar">

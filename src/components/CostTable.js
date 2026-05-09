@@ -152,7 +152,7 @@ const CostTable = ({ section }) => {
               <tbody>
                 {rows.map((r, i) => (
                   <tr key={i}>
-                    <td data-label="Item" style={{ minWidth: 160 }}>
+                    <td data-label="Item">
                       <textarea
                         value={r.item}
                         onChange={(e) =>
@@ -160,7 +160,7 @@ const CostTable = ({ section }) => {
                         }
                       />
                     </td>
-                    <td data-label="Status" style={{ minWidth: 110 }}>
+                    <td data-label="Status">
                       <select
                         value={r.status}
                         onChange={(e) =>
@@ -173,8 +173,7 @@ const CostTable = ({ section }) => {
                     </td>
                     <td
                       data-label="Cost (€)"
-                      className="currency-cell"
-                      style={{ minWidth: 80 }}>
+                      className="currency-cell">
                       <input
                         type="number"
                         value={r.costEur}
@@ -186,12 +185,11 @@ const CostTable = ({ section }) => {
                     </td>
                     <td
                       data-label="Cost (CAD)"
-                      className="currency-cell cad-display"
-                      style={{ minWidth: 90 }}>
+                      className="currency-cell cad-display">
                       {formatCad(r.costEur)}
                     </td>
                     {section === "setup" ? (
-                      <td data-label="Priority" style={{ minWidth: 70 }}>
+                      <td data-label="Priority">
                         <select
                           value={r.priority || "Medium"}
                           onChange={(e) =>
@@ -203,7 +201,7 @@ const CostTable = ({ section }) => {
                         </select>
                       </td>
                     ) : (
-                      <td data-label="Date/When" style={{ minWidth: 100 }}>
+                      <td data-label="Date/When">
                         <input
                           value={r.deadline}
                           onChange={(e) =>
@@ -212,7 +210,7 @@ const CostTable = ({ section }) => {
                         />
                       </td>
                     )}
-                    <td data-label="Notes" style={{ minWidth: 160 }}>
+                    <td data-label="Notes">
                       <textarea
                         value={r.notes}
                         onChange={(e) =>
@@ -220,7 +218,7 @@ const CostTable = ({ section }) => {
                         }
                       />
                     </td>
-                    <td data-label="" className="table-actions">
+                    <td data-label="Actions" className="table-actions">
                       <button
                         className="delete-btn"
                         onClick={() => removeCost(section, i)}>

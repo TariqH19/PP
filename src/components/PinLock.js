@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 
-const PIN_HASH = process.env.REACT_APP_PIN || "2580";
+const PIN_HASH = (process.env.REACT_APP_PIN || "").trim();
 
 const PinLock = () => {
   const [pinEntry, setPinEntry] = useState("");
@@ -31,6 +31,7 @@ const PinLock = () => {
 
   function pinPress(digit) {
     if (unlocked) return;
+    if (!PIN_HASH) return;
     const next = (pinEntry + digit).slice(0, 8);
     setPinEntry(next);
     setError("");
@@ -79,7 +80,8 @@ const PinLock = () => {
         role="status"
         aria-live="assertive"
         className={shake ? "visible" : ""}>
-        {error}
+        {error ||
+          (!PIN_HASH ? "PIN is not configured. Set REACT_APP_PIN." : "")}
       </div>
       <div id="pin-pad">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => (
